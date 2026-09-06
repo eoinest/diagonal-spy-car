@@ -1,0 +1,54 @@
+{
+  "stl_binary_audit": [
+    {
+      "file": "01_chassis.stl",
+      "triangles": 3624,
+      "closed_connected_shell": true,
+      "min_z_mm": 0.0
+    },
+    {
+      "file": "02_electronics_deck.stl",
+      "triangles": 2020,
+      "closed_connected_shell": true,
+      "min_z_mm": 0.0
+    },
+    {
+      "file": "03_camera_cradle.stl",
+      "triangles": 698,
+      "closed_connected_shell": true,
+      "min_z_mm": 0.0
+    },
+    {
+      "file": "04_skid_foot.stl",
+      "triangles": 1870,
+      "closed_connected_shell": true,
+      "min_z_mm": 0.0
+    },
+    {
+      "file": "05_skid_foot.stl",
+      "triangles": 1870,
+      "closed_connected_shell": true,
+      "min_z_mm": 0.0
+    },
+    {
+      "file": "06_drive_wheel.stl",
+      "triangles": 3256,
+      "closed_connected_shell": true,
+      "min_z_mm": 0.0
+    },
+    {
+      "file": "07_drive_wheel.stl",
+      "triangles": 3254,
+      "closed_connected_shell": true,
+      "min_z_mm": 0.0
+    },
+    {
+      "file": "08_fit_coupon.stl",
+      "triangles": 1480,
+      "closed_connected_shell": true,
+      "min_z_mm": 0.0
+    }
+  ],
+  "bom_rows": 40,
+  "relative_markdown_links": "pass"
+}

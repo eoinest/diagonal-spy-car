@@ -1,0 +1,12 @@
+.DS_Store
+*.blend1
+*.blend2
+__pycache__/
+*.pyc
+build/
+*.private.h
+*.elf
+*.bin
+*.map
+*.uf2
+.env

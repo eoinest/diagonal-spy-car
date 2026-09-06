@@ -1,0 +1,90 @@
+[
+  {
+    "file": "stl/01_chassis.stl",
+    "triangles": 3624,
+    "size_mm": [
+      81.0,
+      100.0,
+      27.0
+    ],
+    "non_manifold_edges": 0,
+    "volume_mm3": 28202.31
+  },
+  {
+    "file": "stl/02_electronics_deck.stl",
+    "triangles": 2020,
+    "size_mm": [
+      44.0,
+      77.3,
+      5.55
+    ],
+    "non_manifold_edges": 0,
+    "volume_mm3": 7887.71
+  },
+  {
+    "file": "stl/03_camera_cradle.stl",
+    "triangles": 698,
+    "size_mm": [
+      26.0,
+      22.0,
+      16.8
+    ],
+    "non_manifold_edges": 0,
+    "volume_mm3": 3106.1
+  },
+  {
+    "file": "stl/04_skid_foot.stl",
+    "triangles": 1870,
+    "size_mm": [
+      12.0,
+      12.0,
+      7.5
+    ],
+    "non_manifold_edges": 0,
+    "volume_mm3": 523.72
+  },
+  {
+    "file": "stl/05_skid_foot.stl",
+    "triangles": 1870,
+    "size_mm": [
+      12.0,
+      12.0,
+      7.5
+    ],
+    "non_manifold_edges": 0,
+    "volume_mm3": 523.72
+  },
+  {
+    "file": "stl/06_drive_wheel.stl",
+    "triangles": 3256,
+    "size_mm": [
+      34.0,
+      34.0,
+      7.0
+    ],
+    "non_manifold_edges": 0,
+    "volume_mm3": 4902.78
+  },
+  {
+    "file": "stl/07_drive_wheel.stl",
+    "triangles": 3254,
+    "size_mm": [
+      34.0,
+      34.0,
+      7.0
+    ],
+    "non_manifold_edges": 0,
+    "volume_mm3": 4902.78
+  },
+  {
+    "file": "stl/08_fit_coupon.stl",
+    "triangles": 1480,
+    "size_mm": [
+      35.0,
+      46.0,
+      3.0
+    ],
+    "non_manifold_edges": 0,
+    "volume_mm3": 3793.49
+  }
+]

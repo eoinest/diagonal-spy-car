@@ -1,0 +1,88 @@
+{
+  "revision": "0.1-prototype",
+  "units": "mm",
+  "chassis": {
+    "width": 80,
+    "length": 100,
+    "floor_bottom": 7.5,
+    "floor_thickness": 3,
+    "corner_radius": 7
+  },
+  "wheel": {
+    "diameter": 34,
+    "width": 7,
+    "center_x": 48.1,
+    "diagonal_y": 27,
+    "axle_z": 17,
+    "center_access_diameter": 5,
+    "horn_slot_radius_min": 5,
+    "horn_slot_radius_max": 11,
+    "horn_screw_clearance": 2.2
+  },
+  "servo": {
+    "body_length": 22.8,
+    "body_width": 12.2,
+    "body_height_assumed": 23,
+    "total_height_nominal": 28.5,
+    "ear_span_assumed": 32.5,
+    "ear_thickness_assumed": 2,
+    "spindle_offset_assumed": 5.5,
+    "body_center_x": 29,
+    "mount_clearance_per_side": 0.6
+  },
+  "s2_mini": {
+    "length": 34.3,
+    "width": 25.4,
+    "pcb_thickness_assumed": 1.6,
+    "component_height_assumed": 5
+  },
+  "battery": {
+    "length": 61,
+    "width": 16,
+    "height": 15,
+    "cavity_length": 66,
+    "cavity_width": 20,
+    "cavity_height": 19
+  },
+  "regulator": {
+    "length": 25.4,
+    "width": 15.2,
+    "height": 9
+  },
+  "camera": {
+    "width_envelope": 20,
+    "height_envelope": 20,
+    "depth_envelope": 24
+  },
+  "notes": [
+    "Nominal envelopes are not exact replicas of unmeasured hardware.",
+    "Servo detail dimensions explicitly marked assumed need calipers.",
+    "Camera envelope is provisional until exact model is confirmed.",
+    "Diagonal drive is skid steering; prototype on smooth floors.",
+    "Core envelope dimensions drive build.py. Detailed mating geometry and layout coordinates remain design constants in build.py; revalidate all changes.",
+    "Only generator_bound_fields feed geometry directly. Other fields document nominal reference values and must be changed with their matching build.py layout/features."
+  ],
+  "generator_bound_fields": [
+    "chassis.width",
+    "chassis.length",
+    "chassis.floor_thickness",
+    "chassis.corner_radius",
+    "wheel.diameter",
+    "wheel.width",
+    "wheel.center_x",
+    "servo.body_length",
+    "servo.body_width",
+    "servo.body_height_assumed",
+    "s2_mini.width",
+    "s2_mini.length",
+    "s2_mini.pcb_thickness_assumed",
+    "battery.width",
+    "battery.length",
+    "battery.height",
+    "regulator.width",
+    "regulator.length",
+    "camera.width_envelope",
+    "camera.height_envelope",
+    "camera.depth_envelope"
+  ]
+}

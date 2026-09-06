@@ -1,0 +1,5 @@
+{
+  "scope": "Printed parts versus nominal hardware envelopes and other printed parts; cosmetic details, wires, assembly tolerances, mechanical loading and purchased revision variation excluded.",
+  "positive_AABB_pairs_checked": 24,
+  "intersections_over_0.05_mm3": []
+}
