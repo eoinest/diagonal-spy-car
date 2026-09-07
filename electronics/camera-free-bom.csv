@@ -1,0 +1,20 @@
+reference,quantity,status,item,unit_price_usd,source,notes
+MCU,1,owned,LOLIN ESP32-S2 Mini,,https://docs.wemos.cc/en/latest/s2/s2_mini.html,GPIO16 left;18 right;3 ADC;7 ADC enable;VBUS 5V
+SERVO,2,owned,MG90S-style continuous-rotation servo,,,Verify delivered wiring and neutral; servo current unknown
+BUCK,1,owned,Large LM2596-style adjustable buck,,https://www.ti.com/lit/ds/symlink/lm2596.pdf,Confirm IC; set5.00V; provisional2.8A load unverified; no LiPo cutoff
+BAT,1,buy,Lumenier300mAh2S75C XT30 SKU10188,13.49,https://www.racedayquads.com/products/lumenier-300mah-2s-75c-lipo-battery-xt-30,48x17x12mm18g; price/availability snapshot2026-09-07;7.4Vnominal8.4Vfull
+J_BAT,1,reuse if XT30 otherwise buy,Mating XT30 pigtail with22AWG or thicker wire,,,Match contact gender to battery; owned photo cannot distinguish XT30/XT60; verify polarity
+F_IN,1,buy,4A provisional inline fuse and insulated holder,,,DC interrupt rating suitable for LiPo; validate wire/fuse/inrush coordination; not stall protection
+J_PWR,1,buy or fabricate,Insulated removable connector in S2 VBUS feed,,,Remove during USB programming; servo signals and battery also disconnected
+C_BULK,1,buy,220uF10V radial electrolytic,,,At servo split; striped negative toGND; retain onboard capacitor; verify stability
+C_BYPASS,1,buy,100nF ceramic16V or higher,,,Across5V/GND near distribution
+QP,1,buy,Diodes BS250P P-channel MOSFET,,https://www.diodes.com/datasheet/download/BS250P.pdf,SourceVBAT_SW;drainR1;gateSENSE_GATE; NRND; verify exact package drawing
+QN,1,buy,onsemi2N3904BU NPN transistor,,https://www.onsemi.com/download/data-sheet/pdf/2n3904-d.pdf,Pin1E2B3C with maker drawing orientation
+R100K,3,buy,100k1% resistor,,,R1 divider;gate-source pullup;base-ground pulldown
+R10K,2,buy,10k resistor,,,GPIO7 toNPNbase;NPNcollector toPMOSgate
+R33K,1,buy,33k1% resistor,,,ADC divider lower resistor
+C_SENSE,1,buy,100nF ceramic16V or higher,,,GPIO3 toGND; separate fromC_BYPASS
+HARNESS,1,buy or owned,Wire;servo extension leads;heatshrink;insulated perfboard,,,22AWG minimum mainpower; no motor current through S2/breadboard
+CHARGER,1,bench tool,2S balance charger adjustable to0.30A,,,LiPo4.2V/cell;main XT30 plus3pin balance lead; not1S TP4056
+CELL_MON,1,buy or owned,2S-compatible per-cell meter or adjustable alarm,,,Monitor individualcells; alarm around3.5V/cell startingpoint; no automatic cutoff; unplug after use
+DMM,1,bench tool,Digital multimeter,,,Verify polarity and5V beforeconnecting; current-limited adjustable supply recommended for commissioning

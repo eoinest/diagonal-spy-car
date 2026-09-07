@@ -1,0 +1,168 @@
+"""Rebuild the illustrated prototype wiring guide; requires reportlab and Pillow."""
+from pathlib import Path
+from PIL import Image
+from reportlab.pdfgen import canvas
+from reportlab.lib.colors import HexColor
+from reportlab.lib.utils import ImageReader
+from reportlab.platypus import Paragraph
+from reportlab.lib.styles import ParagraphStyle
+
+ROOT = Path(__file__).resolve().parents[1]
+A = ROOT / 'electronics/guide-assets'
+OUT = ROOT / 'output/pdf/spy-car-wiring-guide.pdf'
+OUT.parent.mkdir(parents=True, exist_ok=True)
+W,H = 1200,850
+c = canvas.Canvas(str(OUT), pagesize=(W,H))
+c.setTitle('Diagonal Spy Car | Illustrated wiring guide')
+c.setAuthor('Diagonal Spy Car project')
+INK='#183047'; MUTED='#536779'; RED='#CE3946'; GND='#354354'; ORANGE='#C77700'; BLUE='#007EAD'; GREEN='#13806A'
+def text(x,y,s,size=14,color=INK,bold=False):
+    c.setFillColor(HexColor(color)); c.setFont('Helvetica-Bold' if bold else 'Helvetica',size); c.drawString(x,H-y-size,s)
+def para(x,y,s,width,size=14,color=INK):
+    st=ParagraphStyle('p',fontName='Helvetica',fontSize=size,leading=size*1.4,textColor=HexColor(color))
+    p=Paragraph(s,st); _,h=p.wrap(width,700); p.drawOn(c,x,H-y-h); return h
+def box(x,y,w,h,fill='#FFFFFF',stroke='#DCE4E9'):
+    c.setFillColor(HexColor(fill)); c.setStrokeColor(HexColor(stroke)); c.setLineWidth(1); c.roundRect(x,H-y-h,w,h,10,fill=1,stroke=1)
+def line(points,color=INK,width=2,dash=None):
+    c.setStrokeColor(HexColor(color)); c.setLineWidth(width); c.setDash(dash or [])
+    p=c.beginPath();p.moveTo(points[0][0],H-points[0][1])
+    for x,y in points[1:]:p.lineTo(x,H-y)
+    c.drawPath(p);c.setDash([])
+def dot(x,y,color=INK,r=4):
+    c.setFillColor(HexColor(color));c.circle(x,H-y,r,fill=1,stroke=0)
+def img(name,x,y,w,h):
+    im=Image.open(A/name); iw,ih=im.size; s=min(w/iw,h/ih); ww,hh=iw*s,ih*s
+    c.drawImage(ImageReader(im),x+(w-ww)/2,H-y-hh,width=ww,height=hh,mask='auto')
+def header(n,title,sub):
+    c.setFillColor(HexColor('#F4F7FA'));c.rect(0,0,W,H,fill=1,stroke=0)
+    text(40,25,'DIAGONAL SPY CAR  /  CAMERA-FREE PROTOTYPE',12,GREEN,True)
+    text(40,52,title,30,INK,True); text(40,96,sub,14,MUTED)
+    text(40,817,'07 SEP 2026  |  Unbuilt electrical prototype - verify the delivered hardware before connecting',10,MUTED)
+    text(1100,817,f'{n} / 5',10,MUTED)
+def end():c.showPage()
+def link(x,y,label,url,size=12):
+    text(x,y,label,size,BLUE);c.linkURL(url,(x,H-y-size*1.4,x+c.stringWidth(label,'Helvetica',size),H-y),relative=0)
+
+# Page 1: electrical topology, picture cards and named terminals.
+header(1,'Connect the car','Read the named terminals here; page 2 locates the actual solder pads. All grounds connect together. Crossings connect only where marked with a dot.')
+box(40,150,210,285);text(55,164,'1  BATTERY',16,bold=True);img('battery.webp',50,195,190,185)
+text(55,387,'2S / 7.4 V / 300 mAh',13);text(55,410,'8.4 V when fully charged',11,MUTED)
+box(390,150,220,285);text(405,164,'2  YOUR LARGE BUCK',16,bold=True);img('owned-buck.jpg',450,199,100,187)
+text(405,399,'Adjust output to 5.00 V',13,RED,True)
+box(930,150,230,230);text(945,163,'3  FRONT-LEFT SERVO',15,bold=True);img('servo.jpg',970,195,140,140)
+text(945,348,'Owned continuous-rotation unit',11,MUTED)
+box(930,450,230,230);text(945,463,'4  REAR-RIGHT SERVO',15,bold=True);img('servo.jpg',970,495,140,140)
+text(945,648,'Same supply; separate signal',11,MUTED)
+box(570,510,215,248);text(585,524,'5  LOLIN S2 MINI',16,bold=True);img('s2-mini-top.jpg',588,555,175,175)
+text(585,736,'USB unplugged while driving',11,MUTED)
+# Battery input / disconnect / fuse
+line([(250,230),(295,230),(295,250),(390,250)],RED,3);text(262,188,'XT30',12,bold=True);text(262,205,'unplug = OFF',10)
+box(305,240,55,20);text(311,242,'FUSE',10);text(307,268,'4 A*',10,MUTED)
+line([(250,300),(280,300),(280,330),(390,330)],GND,3)
+text(353,230,'IN+',11,RED,True);text(353,310,'IN-',11,GND,True)
+text(247,247,'+',12,RED,True);text(247,306,'-',12,GND,True)
+line([(610,250),(840,250),(840,700)],RED,3);text(624,227,'OUT+  /  5 V BUS',12,RED,True)
+line([(610,330),(870,330),(870,725)],GND,3);line([(870,307),(870,330)],GND,3);text(624,308,'OUT-  /  GND BUS',12,GND,True)
+for y in [275,575]:
+    line([(840,y),(930,y)],RED,3);dot(840,y,RED);text(892,y-20,'RED +',10,RED,True)
+    line([(870,y+32),(930,y+32)],GND,3);dot(870,y+32,GND);text(884,y+36,'BROWN -',9,GND)
+line([(840,700),(785,700)],RED,3);dot(840,700,RED)
+box(792,690,36,20);text(796,694,'JP',9,RED,True);text(788,667,'J_PWR',10,RED,True)
+line([(870,725),(785,725)],GND,3);dot(870,725,GND)
+text(734,680,'VBUS',10,RED,True);text(744,723,'GND',10,GND,True)
+line([(715,510),(715,400),(905,400),(905,338),(930,338)],ORANGE,2);text(720,382,'GPIO16 > LEFT SIGNAL',11,ORANGE,True)
+line([(750,510),(750,428),(910,428),(910,638),(930,638)],BLUE,2);text(760,430,'GPIO18 > RIGHT',10,BLUE,True)
+text(900,343,'S',10,ORANGE,True);text(900,641,'S',10,BLUE,True)
+box(40,470,470,130);text(56,484,'At the 5 V / GND split',16,bold=True)
+para(56,512,'Add <b>220 uF / 10 V electrolytic</b> (+ to 5 V; striped negative to GND), plus <b>100 nF ceramic</b> across the same rails. Keep leads short. Preserve the buck\'s onboard capacitor.',435,13)
+box(40,615,470,143);text(56,629,'Battery sensing: included on page 4',16,bold=True)
+para(56,659,'The existing receiver firmware also needs <b>GPIO3 + GPIO7</b> and the switched divider. It stops motion at 7.0 V; it does <b>not</b> disconnect the pack. Unplug after stopping.',433,13)
+text(40,778,'* Fuse rating is provisional. Photos show reference servos; wire functions, not plug orientation, define the connections.',11,MUTED)
+end()
+
+# Page 2: photo landing points.
+header(2,'Exactly where each wire lands','Component side facing you. S2 antenna at the top; USB-C at the bottom. Photos are not mirrored.')
+box(40,140,655,490);img('s2-mini-top.jpg',125,190,400,400)
+text(60,157,'LOLIN S2 MINI v1.0.0 REFERENCE',16,bold=True)
+coords={'18':(1239,833),'16':(1238,930),'GND':(1238,1027),'VBUS':(1238,1126)}
+labels={'18':('GPIO18 > right signal',BLUE),'16':('GPIO16 > left signal',ORANGE),'GND':('GND > ground bus',GND),'VBUS':('VBUS > 5 V via J_PWR',RED)}
+for k,(px,py) in coords.items():
+    x,y=125+px/4,190+py/4; lab,col=labels[k];dot(x,y,col,5);line([(x,y),(480,y)],col);text(488,y-7,lab,12,col,True)
+for k,py in [('3',535),('7',729)]:
+    x,y=125+362/4,190+py/4;dot(x,y,GREEN,5);line([(x,y),(85,y)],GREEN);text(55,y-28,'GPIO'+k,12,GREEN,True)
+text(62,568,'Left GPIO3 / GPIO7: sensing only (page 4)',12,GREEN)
+text(62,594,'Use GPIO labels. Inner-row GPIO17 is NOT the right servo pin.',12,INK,True)
+box(715,140,445,490);text(735,157,'YOUR LARGE BUCK: SAME ORIENTATION',15,bold=True)
+img('owned-buck.jpg',860,204,159,300)
+# Photo coordinates refer to 265x500 crop from supplied portrait.
+for px,py,label,lx,ly,col in [(32,48,'OUT+  5 V',730,208,RED),(220,38,'OUT-  GND',1027,208,GND),(49,470,'IN-  BATTERY -',728,514,GND),(240,456,'IN+  BATTERY +',1005,538,RED)]:
+    x,y=860+px*.6,204+py*.6;dot(x,y,col,5);line([(x,y),(lx+15,ly-6)],col);text(lx,ly,label,10,col,True)
+para(735,570,'Blue trimmer sets output. Measure OUT+ to OUT- and set <b>5.00 V with all loads disconnected</b>. IC marking is not readable: confirm the board type.',403,12)
+box(40,650,1120,135,fill='#E8F3F0')
+text(58,666,'Soldered wiring + removable connectors',17,bold=True)
+para(58,697,'Bare S2 holes and converter pads need soldered wires or soldered headers. Use 22 AWG or thicker for the battery and main 5 V / GND paths. Servo red normally means supply; brown/black ground; orange/yellow signal. Verify your servo wires before fitting a 3-pin extension. Split its three wires to the correct nets - do not plug the whole servo lead onto random adjacent S2 pins.',1077,14)
+end()
+
+header(3,'Battery, plug and converter choice','Reuse the larger buck for this prototype. A custom power PCB is not required.')
+box(40,145,540,310);img('battery.webp',55,180,240,230);text(310,166,'BUY: LUMENIER 300',19,bold=True)
+para(310,210,'<b>2S 75C LiPo, XT30</b><br/>48 x 17 x 12 mm<br/>18 g; 7.4 V nominal<br/>8.4 V fully charged<br/><br/>$13.49; listed available<br/>at the research snapshot.',245,15)
+link(60,425,'RaceDayQuads product / purchase page','https://www.racedayquads.com/products/lumenier-300mah-2s-75c-lipo-battery-xt-30')
+box(605,145,555,310);img('owned-connectors.jpg',622,179,112,240);text(755,166,'YOUR YELLOW CONNECTORS',18,bold=True)
+para(755,205,'The photo establishes the XT family, but does not distinguish <b>XT30 from XT60</b>. Read the molded marking.<br/><br/><b>XT30:</b> use the mating harness half.<br/><b>XT60:</b> buy an XT30 mating pigtail; a bulky adapter also works but increases footprint.<br/><br/>Check + / - with a meter. Housing shape or wire color alone is not proof of polarity.',385,13)
+box(40,475,540,185);text(57,491,'Why the large buck wins here',18,bold=True)
+para(57,526,'A 2S pack feeds a step-down converter naturally. Allowing 1.2 A per servo plus 0.4 A for the S2 gives a <b>provisional 2.8 A at 5 V</b>. Actual servo peaks are unknown. The LM2596 IC is rated 3 A with suitable parts and cooling; this particular board must still pass load and temperature checks at 8.4 V and 7.0 V.',505,14)
+box(605,475,555,185);img('owned-buckboost.jpg',624,512,70,117);text(712,491,'Why not the small XL63070 board?',17,bold=True)
+para(712,528,'It appears to be a TPS63070-style buck-boost module; the IC is unconfirmed. TI specifies 2 A output at 4 V in / 5 V out. That is below our provisional load. A 1S design at 14 W could also need about 5 A near 3.3 V. Smaller hardware needs current measurements first.',425,13)
+box(40,680,1120,105,fill='#FFF3DF');text(57,692,'Battery handling and fit',16,bold=True)
+para(57,721,'12 mm is the pack thickness, not a promised installed height: leave room for padding and lead bends. This hobby pack has no verified protection PCB. Neither owned converter provides charging, balancing or a suitable LiPo cutoff. Use a 2S balance charger and unplug the pack after each run.',1085,14)
+end()
+
+header(4,'Battery sensing for the existing firmware','A small insulated perfboard carries these low-current parts; motor current stays in the main harness.')
+box(40,145,1120,360)
+# Functional schematic with explicit named transistor terminals; no ambiguous package pin ordering.
+text(60,163,'VBAT_SW = battery + AFTER fuse',13,RED,True)
+line([(70,206),(455,206),(455,225),(470,225)],RED,2);dot(180,206,RED);dot(400,206,RED)
+box(470,180,155,85);text(483,189,'QP: BS250P',15,bold=True);text(477,220,'S',13);text(603,220,'D',13);text(538,245,'G',13)
+line([(625,225),(727,225)],GREEN,2);box(727,211,100,28);text(738,216,'R1 100k',13)
+line([(827,225),(1095,225)],GREEN,2);dot(925,225,GREEN);text(983,195,'GPIO3 / ADC',14,GREEN,True)
+line([(925,225),(925,280)],GREEN);box(893,280,65,55);text(900,287,'R2',12);text(900,305,'33k',12)
+line([(925,335),(925,450)],GND);line([(925,450),(1080,450)],GND)
+line([(1040,225),(1040,298)],GREEN);dot(1040,225,GREEN);line([(1022,298),(1058,298)],INK,2);line([(1022,309),(1058,309)],INK,2);line([(1040,309),(1040,450)],GND);dot(1040,450,GND)
+text(1050,315,'C1',12);text(1050,333,'100 nF',12);text(968,459,'GND',12,GND,True)
+line([(400,206),(400,290)],RED);box(350,290,100,32);text(360,297,'R_GATE 100k',11)
+line([(400,322),(400,352),(548,352),(548,265)],INK);dot(548,352)
+line([(548,352),(680,352)],INK);box(680,337,130,30);text(689,345,'R_GATE_SER 10k',11)
+line([(810,352),(842,352),(842,392),(715,392)],INK)
+box(550,377,165,80);text(560,382,'QN: 2N3904BU',13,bold=True);text(558,407,'B',12);text(695,393,'C',12);text(629,437,'E',12)
+line([(635,457),(635,480),(1080,480)],GND);line([(1080,450),(1080,480)],GND)
+text(65,376,'GPIO7',14,GREEN,True);line([(65,410),(210,410)],GREEN);box(210,395,120,30);text(220,403,'R_BASE 10k',11)
+line([(330,410),(550,410)],GREEN);dot(450,410,GREEN);line([(450,410),(450,445)],GREEN)
+box(375,445,135,25);text(383,450,'R_BASE_PD 100k',11);line([(450,470),(450,480),(635,480)],GND);dot(635,480,GND)
+box(40,525,550,260);text(58,543,'Parts and terminal identification',18,bold=True)
+para(58,582,'<b>QP:</b> Diodes BS250P P-channel MOSFET: source to raw fused battery, drain to R1, gate to the resistor network shown.<br/><b>QN:</b> onsemi 2N3904BU NPN: emitter to GND, collector to R_GATE_SER, base to R_BASE.<br/><b>Resistors:</b> 3 x 100k, 2 x 10k, and 1 x 33k; use 1% for R1/R2. C1: 100 nF ceramic, 16 V or higher.<br/>Match the exact maker\'s package-view drawing before soldering; transistor terminal letters are not left-to-right lead positions.',510,13)
+box(610,525,550,260);text(628,543,'What it does - and what it cannot do',18,bold=True)
+para(628,582,'GPIO7 HIGH enables sensing; wait at least 20 ms before sampling GPIO3. Return GPIO7 LOW afterward.<br/><b>8.4 V pack = about 2.084 V at GPIO3.</b><br/>The switching stage avoids a sustained battery-fed ADC path when the S2 is off; do not replace it with a permanently connected divider.<br/>Existing firmware needs pairing, servo-neutral and battery calibration before arming. Its 7.0 V stop only commands neutral. Pack voltage does not reveal an individually weak cell; monitor both cells and unplug promptly.',510,13)
+end()
+
+header(5,'Build, check and use','No custom PCB. This is a soldered prototype harness, not a tested plug-and-play electrical assembly.')
+box(40,145,550,392);text(58,162,'Wire and check in this order',19,bold=True)
+steps=[
+'1. Battery unplugged: solder the mating XT30 lead through a provisional 4 A inline fuse to IN+; negative to IN-. Insulate every joint.',
+'2. Leave all loads disconnected. Power the buck, read OUT+ to OUT- with a multimeter and adjust to 5.00 V. Unplug before adding wires.',
+'3. Split OUT+ and OUT- into separate servo and S2 branches. Add the capacitors. Fit J_PWR as a removable insulated connector in the S2 VBUS feed.',
+'4. Add the page 4 sensing circuit. Check the ADC voltage and off-state behavior before connecting GPIO3. Calibrate against a meter.',
+'5. With wheels lifted, test each servo, then both together. Check 5 V stability, resets and board temperature at 8.4 V and 7.0 V input. Do not hold a servo stalled.',
+'6. Verify neutral on signal loss and the calibrated 7.0 V stop. Test voltage thresholds with an adjustable supply, not by deeply discharging the battery.'
+]
+y=200
+for s in steps:y+=para(58,y,s,513,12.5)+10
+box(610,145,550,198,fill='#FFF3DF');text(628,162,'Before connecting USB to the S2',18,bold=True)
+para(628,199,'<b>Unplug the battery, remove J_PWR, and disconnect both servo signal wires.</b> Ground may remain connected. The S2 VBUS header is connected to USB power: battery disconnection alone can still let USB feed the servos or buck backward through the 5 V wire. Restore J_PWR and signals only after USB is removed.',510,14)
+box(610,363,550,174);text(628,380,'Charge outside the car',18,bold=True)
+para(628,417,'Use a <b>2S LiPo balance charger</b> set for 4.20 V/cell (8.40 V pack). A conservative 1C setting for 300 mAh is <b>0.30 A</b>, subject to pack instructions. Connect its XT30 main lead and 3-pin balance lead as the charger requires. A 1S USB/TP4056 charger is not compatible. Charge attended on a nonflammable surface.',510,13)
+box(40,556,1120,88,fill='#E8F3F0');para(58,572,'<b>Run-time rule:</b> use a 2S-compatible per-cell checker/alarm; around 3.5 V/cell under load is a conservative starting alarm. Stop and unplug promptly when it alarms or firmware stops. An alarm is not a cutoff. Remove both the XT30 and any balance-port alarm for storage. A real automatic cutoff requires additional suitable hardware.',1080,13)
+text(40,660,'Sources, image credits and build files',17,bold=True)
+sources=[('WEMOS: S2 Mini photo, board pinout and schematic','https://docs.wemos.cc/en/latest/s2/s2_mini.html'),('TI: LM2596 buck datasheet','https://www.ti.com/lit/ds/symlink/lm2596.pdf'),('TI: TPS63070 buck-boost datasheet','https://www.ti.com/lit/ds/symlink/tps63070.pdf'),('TowerPro: MG90S reference image (not proof of continuous rotation)','https://towerpro.com.tw/product/mg90s-3/'),('Diodes: BS250P terminal drawing','https://www.diodes.com/datasheet/download/BS250P.pdf'),('onsemi: 2N3904BU terminal drawing','https://www.onsemi.com/download/data-sheet/pdf/2n3904-d.pdf')]
+for i,(lab,url) in enumerate(sources):link(40+(i//3)*565,694+(i%3)*24,lab,url,11)
+text(40,774,'Battery photo: Lumenier / RaceDayQuads (page 3). Converter and connector photos: user. Third-party images are not MIT-licensed.',10,MUTED)
+end();c.save();print(OUT)

@@ -2,6 +2,10 @@
 
 An open-source, 3D-printable rover using two owned MG90S-style continuous servos, a LOLIN ESP32-S2 Mini, and diagonal drive wheels. Inspired by [Pro Know DIY's micro RC FPV car](https://github.com/proknowdiy/micro_rc_fpv_car_esp-now).
 
+## Picture wiring guide and current electronics
+
+Use the [five-page illustrated wiring PDF](output/pdf/spy-car-wiring-guide.pdf), [step-by-step wiring notes](electronics/wiring.md), and [camera-free electronics BOM](electronics/camera-free-bom.csv). This revision selects the owned large LM2596-style buck at 5.00 V and a Lumenier 300 mAh 2S XT30 battery (48 x 17 x 12 mm). Converter identity and loaded performance still need confirmation; neither owned board supplies LiPo charging or cutoff. The guide includes exact S2 pad callouts, battery sensing, USB isolation and connector matching.
+
 ## Current work: integral printed axles and press-fit wheels
 
 The latest [revision 0.4 model](cad/rolling/README.md) makes both passive-wheel axles **part of the printed chassis**, with integral shoulders and servo retaining clips. Bearings press-fit into the wheels and onto the stationary pegs. There are **no added screws, nuts, caps or separate spacers** in this mechanical stage: only the owned servos and two MR83ZZ bearings are purchased parts.

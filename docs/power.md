@@ -1,4 +1,6 @@
-# Battery and power design
+# Historical battery and power proposal
+
+> **Historical design — superseded for the current build.** This page preserves the earlier Tattu 450 mAh / Pololu 4872 / FPV-camera proposal. Its parts, capacitor values, charging-current example, current budget and hardware-cutoff settings do not apply to the current camera-free selection. The current build uses the owned large LM2596-style buck, a Lumenier 300 mAh 2S XT30 pack, external 220 µF / 10 V plus 100 nF starting decoupling, and manual battery disconnection with per-cell monitoring. Use [current wiring](../electronics/wiring.md), [current camera-free BOM](../electronics/camera-free-bom.csv), and [picture wiring guide](../output/pdf/spy-car-wiring-guide.pdf). No battery undervoltage cutoff has been verified on the owned converter.
 
 Design proposal; **not electrically bench-validated**. Sources checked 2026-09-05 (Pacific time). Prices exclude shipping/tax and are snapshots. The actual continuous-rotation MG90S variants and camera must be measured before the power design is released as a tested build.
 

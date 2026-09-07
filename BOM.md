@@ -1,4 +1,6 @@
-# Bill of materials
+# Historical bill of materials
+
+> **Historical BOM — do not order this list for the current build.** This table records the original camera-equipped Tattu/Pololu proposal and is retained for design history. The current camera-free build uses the owned LM2596-style buck and a Lumenier 300 mAh 2S XT30 pack. Use the [current camera-free BOM](electronics/camera-free-bom.csv), [current wiring](electronics/wiring.md), and [picture wiring guide](output/pdf/spy-car-wiring-guide.pdf). The old camera, Pololu cutoff/enable switch, capacitor choices and subtotal below are not the current selection.
 
 Research snapshot: 2026-09-05. Quantities cover one car plus one radio controller. Owned parts are marked. Prices exclude shipping/tax and are not a complete project total. Generic hardware dimensions must be checked before buying.
 

@@ -10,3 +10,6 @@ build/
 *.map
 *.uf2
 .env
+
+# Local PDF verification renders
+tmp/pdfs/
