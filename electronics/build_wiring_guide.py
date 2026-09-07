@@ -95,7 +95,7 @@ text(62,594,'Use GPIO labels. Inner-row GPIO17 is NOT the right servo pin.',12,I
 box(715,140,445,490);text(735,157,'YOUR LARGE BUCK: SAME ORIENTATION',15,bold=True)
 img('owned-buck.jpg',860,204,159,300)
 # Photo coordinates refer to 265x500 crop from supplied portrait.
-for px,py,label,lx,ly,col in [(32,48,'OUT+  5 V',730,208,RED),(220,38,'OUT-  GND',1027,208,GND),(49,470,'IN-  BATTERY -',728,514,GND),(240,456,'IN+  BATTERY +',1005,538,RED)]:
+for px,py,label,lx,ly,col in [(32,48,'OUT+  5 V',730,208,RED),(220,38,'OUT-  GND',1027,208,GND),(49,470,'IN+  BATTERY +',728,514,RED),(240,456,'IN-  BATTERY -',1005,538,GND)]:
     x,y=860+px*.6,204+py*.6;dot(x,y,col,5);line([(x,y),(lx+15,ly-6)],col);text(lx,ly,label,10,col,True)
 para(735,570,'Blue trimmer sets output. Measure OUT+ to OUT- and set <b>5.00 V with all loads disconnected</b>. IC marking is not readable: confirm the board type.',403,12)
 box(40,650,1120,135,fill='#E8F3F0')
