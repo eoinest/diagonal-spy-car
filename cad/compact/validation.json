@@ -1,0 +1,57 @@
+{
+  "revision": "0.2-servo-pair-fit-prototype",
+  "units": "mm",
+  "bracket_size": [
+    30.0,
+    66.0,
+    11.5
+  ],
+  "bracket_volume_mm3": 5767.58,
+  "non_manifold_edges": 0,
+  "connected_components": 1,
+  "hardware_intersections": [],
+  "ear_tip_to_neighbor_case_clearance": 1.35,
+  "rail_to_body_clearance": 0.4,
+  "mount_screw_centers_xyz": [
+    [
+      -9.6,
+      0.6999999999999993,
+      8.5
+    ],
+    [
+      -9.6,
+      28.3,
+      8.5
+    ],
+    [
+      9.6,
+      -28.3,
+      8.5
+    ],
+    [
+      9.6,
+      -0.6999999999999993,
+      8.5
+    ]
+  ],
+  "shaft_tip_centers_xyz": [
+    [
+      -17.0,
+      20.0,
+      8.5
+    ],
+    [
+      17.0,
+      -20.0,
+      8.5
+    ]
+  ],
+  "scope": "Nominal solid fit/topology only. Hardware dimensions, printer tolerances, screw/nut access, cable exits and mechanical loading require physical validation.",
+  "serialized_stl": {
+    "triangles": 1318,
+    "non_manifold_edges": 0,
+    "inconsistent_edge_winding": 0,
+    "degenerate_triangles": 0,
+    "connected_components": 1
+  }
+}

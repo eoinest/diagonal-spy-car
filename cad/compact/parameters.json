@@ -1,0 +1,42 @@
+{
+  "revision": "0.2-servo-pair-fit-prototype",
+  "units": "mm",
+  "servo": {
+    "body_axial_height": 23.0,
+    "body_length": 22.8,
+    "body_width": 12.2,
+    "ear_span": 32.5,
+    "ear_axial_offset": 6.0,
+    "ear_thickness": 2.0,
+    "ear_hole_pitch": 27.6,
+    "ear_hole_diameter": 2.2,
+    "spindle_offset": 5.5,
+    "boss_diameter": 11.4,
+    "boss_height": 3.0,
+    "shaft_diameter": 4.6,
+    "shaft_height": 2.5
+  },
+  "bracket": {
+    "lane_spacing": 29.0,
+    "base_width": 30.0,
+    "base_length": 66.0,
+    "floor_thickness": 2.4,
+    "corner_radius": 3.0,
+    "body_side_clearance": 0.4,
+    "rail_thickness": 2.0,
+    "rail_height": 3.2,
+    "post_axial_thickness": 4.8,
+    "post_width": 4.0,
+    "ear_to_post_gap": 0.2,
+    "post_above_axle": 3.0,
+    "screw_clearance_diameter": 2.4,
+    "output_window_width": 13.4
+  },
+  "notes": [
+    "Body length and width are inherited nominal MG90S envelopes; axial height, ears, holes, boss and shaft details are unmeasured assumptions.",
+    "Cases lie on their broad side, sharing X=0, in adjacent Y lanes. Servo B is rotated 180 degrees about Z relative to servo A.",
+    "Mount holes run along X. Original mounting ears are retained; do not cut them off.",
+    "All fields in servo and bracket are used by build.py. Rebuild and pass geometry validation after editing.",
+    "Wheels, passive supports, electronics deck and electronics are intentionally absent from this first bracket model."
+  ]
+}

@@ -1,6 +1,16 @@
 # Diagonal Spy Car
 
-An open-source, 3D-printable FPV rover using two owned MG90S-style continuous servos, a LOLIN ESP32-S2 Mini, and diagonal drive wheels. Inspired by [Pro Know DIY's micro RC FPV car](https://github.com/proknowdiy/micro_rc_fpv_car_esp-now).
+An open-source, 3D-printable rover using two owned MG90S-style continuous servos, a LOLIN ESP32-S2 Mini, and diagonal drive wheels. Inspired by [Pro Know DIY's micro RC FPV car](https://github.com/proknowdiy/micro_rc_fpv_car_esp-now).
+
+## Current work: compact servo bracket
+
+The current direction drops the camera and places the two servo bodies directly alongside each other, with one rotated 180 degrees so their shafts emerge at diagonal corners. The first model is a **30 × 66 mm one-piece bracket** with four mounting-ear screw points. It is a nominal fit prototype; measure the owned servos before relying on the hole positions.
+
+![Compact opposing servo pair](cad/compact/assembly.png)
+
+Open the [Blender model](cad/compact/servo-pair.blend), download the [bracket STL](cad/compact/servo-pair-bracket.stl), or read the [compact model notes and parameters](cad/compact/README.md). The [camera-free battery and regulator shortlist](docs/compact-shopping.md) supports the next electronics-layout step. This first bracket has no electronics deck or wheel mounts yet; the earlier full-car CAD and firmware below have not been converted to the compact camera-free design.
+
+## Earlier full-car prototype (revision 0.1)
 
 **Revision 0.1 is an unbuilt engineering prototype.** The Blender models use published component outlines and clearly marked assumed details. They are not exact replicas of unmeasured servo clones or the camera. Measure your actual parts and print the fit coupon before the chassis. Diagonal wheels require sideways scrub to turn; the intended first test surface is a smooth indoor floor.
 
