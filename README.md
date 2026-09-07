@@ -2,7 +2,15 @@
 
 An open-source, 3D-printable rover using two owned MG90S-style continuous servos, a LOLIN ESP32-S2 Mini, and diagonal drive wheels. Inspired by [Pro Know DIY's micro RC FPV car](https://github.com/proknowdiy/micro_rc_fpv_car_esp-now).
 
-## Current work: compact servo bracket
+## Current work: compact chassis with aligned passive wheels
+
+The latest [revision 0.3 model](cad/rolling/README.md) adds two bearing-supported free wheels at the open corners. Each front/rear wheel pair shares an axle line through its servo shaft. The **MR83ZZ bearings (3 × 8 × 3 mm)** sit in removable-cap wheel hubs on fixed metal shoulder axles. Illustrated envelope: approximately **55 × 70 mm** with 30 mm wheels.
+
+![Compact chassis with passive wheels](cad/rolling/assembly.png)
+
+Open the [latest Blender model](cad/rolling/rolling-chassis.blend), get the [six printable part files and assembly notes](cad/rolling/README.md), or review [bearing/axle purchase links and photos](docs/passive-wheel-parts.md). The dark powered wheels are size envelopes; their horn attachments remain to be designed. This is an unbuilt fit prototype, with nominal servo geometry and printer tolerances still to check.
+
+## Previous step: compact servo bracket
 
 The current direction drops the camera and places the two servo bodies directly alongside each other, with one rotated 180 degrees so their shafts emerge at diagonal corners. The first model is a **30 × 66 mm one-piece bracket** with four mounting-ear screw points. It is a nominal fit prototype; measure the owned servos before relying on the hole positions.
 

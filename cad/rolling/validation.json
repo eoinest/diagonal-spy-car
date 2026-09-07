@@ -1,0 +1,407 @@
+{
+  "revision": "0.3-passive-wheel-fit-prototype",
+  "units": "mm",
+  "wheel_axes": [
+    {
+      "corner": "front-right",
+      "center_xyz": [
+        22.0,
+        20.0,
+        8.5
+      ],
+      "axis": "X",
+      "type": "passive"
+    },
+    {
+      "corner": "front-left",
+      "center_xyz": [
+        -22.0,
+        20.0,
+        8.5
+      ],
+      "axis": "X",
+      "type": "powered envelope"
+    },
+    {
+      "corner": "rear-left",
+      "center_xyz": [
+        -22.0,
+        -20.0,
+        8.5
+      ],
+      "axis": "X",
+      "type": "passive"
+    },
+    {
+      "corner": "rear-right",
+      "center_xyz": [
+        22.0,
+        -20.0,
+        8.5
+      ],
+      "axis": "X",
+      "type": "powered envelope"
+    }
+  ],
+  "nominal_axial_endplay": 0.2,
+  "bearing_outer_race_retainer_gap": 0.2,
+  "bearing_seat_diametral_clearance": 0.09999999999999964,
+  "printed_vs_nominal_hardware_intersections": [],
+  "stl": [
+    {
+      "file": "rolling-chassis.stl",
+      "valid": true,
+      "errors": [],
+      "file_bytes": 154384,
+      "declared_triangles": 3086,
+      "expected_file_bytes": 154384,
+      "binary_length_valid": true,
+      "nonfinite_coordinates": 0,
+      "nonfinite_stored_normals": 0,
+      "vertices": 1529,
+      "triangles": 3086,
+      "zero_area_triangles": 0,
+      "duplicate_faces": 0,
+      "non_manifold_edges": 0,
+      "inconsistent_edge_winding": 0,
+      "connected_components": 1,
+      "signed_volume_mm3": 6718.656904179647,
+      "bounds_mm": [
+        [
+          -18.5,
+          18.5
+        ],
+        [
+          -33.0,
+          33.0
+        ],
+        [
+          0.0,
+          12.5
+        ]
+      ],
+      "minimum_z_mm": 0.0,
+      "welded_round_5_diagnostics": {
+        "vertices": 1529,
+        "triangles": 3086,
+        "zero_area_triangles": 0,
+        "duplicate_faces": 0,
+        "non_manifold_edges": 0,
+        "inconsistent_edge_winding": 0,
+        "connected_components": 1,
+        "signed_volume_mm3": 6718.65690069358,
+        "bounds_mm": [
+          [
+            -18.5,
+            18.5
+          ],
+          [
+            -33.0,
+            33.0
+          ],
+          [
+            0.0,
+            12.5
+          ]
+        ],
+        "minimum_z_mm": 0.0
+      }
+    },
+    {
+      "file": "passive-wheel.stl",
+      "valid": true,
+      "errors": [],
+      "file_bytes": 77684,
+      "declared_triangles": 1552,
+      "expected_file_bytes": 77684,
+      "binary_length_valid": true,
+      "nonfinite_coordinates": 0,
+      "nonfinite_stored_normals": 0,
+      "vertices": 770,
+      "triangles": 1552,
+      "zero_area_triangles": 0,
+      "duplicate_faces": 0,
+      "non_manifold_edges": 0,
+      "inconsistent_edge_winding": 0,
+      "connected_components": 1,
+      "signed_volume_mm3": 3264.7140123270588,
+      "bounds_mm": [
+        [
+          -15.0,
+          15.000000953674316
+        ],
+        [
+          -15.0,
+          15.0
+        ],
+        [
+          0.0,
+          5.000001907348633
+        ]
+      ],
+      "minimum_z_mm": 0.0,
+      "welded_round_5_diagnostics": {
+        "vertices": 770,
+        "triangles": 1552,
+        "zero_area_triangles": 0,
+        "duplicate_faces": 0,
+        "non_manifold_edges": 0,
+        "inconsistent_edge_winding": 0,
+        "connected_components": 1,
+        "signed_volume_mm3": 3264.7137304744633,
+        "bounds_mm": [
+          [
+            -15.0,
+            15.0
+          ],
+          [
+            -15.0,
+            15.0
+          ],
+          [
+            0.0,
+            5.0
+          ]
+        ],
+        "minimum_z_mm": 0.0
+      }
+    },
+    {
+      "file": "bearing-retainer.stl",
+      "valid": true,
+      "errors": [],
+      "file_bytes": 64984,
+      "declared_triangles": 1298,
+      "expected_file_bytes": 64984,
+      "binary_length_valid": true,
+      "nonfinite_coordinates": 0,
+      "nonfinite_stored_normals": 0,
+      "vertices": 643,
+      "triangles": 1298,
+      "zero_area_triangles": 0,
+      "duplicate_faces": 0,
+      "non_manifold_edges": 0,
+      "inconsistent_edge_winding": 0,
+      "connected_components": 1,
+      "signed_volume_mm3": 527.542233591397,
+      "bounds_mm": [
+        [
+          -11.0,
+          11.000000953674316
+        ],
+        [
+          -11.0,
+          11.0
+        ],
+        [
+          0.0,
+          1.6000022888183594
+        ]
+      ],
+      "minimum_z_mm": 0.0,
+      "welded_round_5_diagnostics": {
+        "vertices": 643,
+        "triangles": 1298,
+        "zero_area_triangles": 0,
+        "duplicate_faces": 0,
+        "non_manifold_edges": 0,
+        "inconsistent_edge_winding": 0,
+        "connected_components": 1,
+        "signed_volume_mm3": 527.5422774313333,
+        "bounds_mm": [
+          [
+            -11.0,
+            11.0
+          ],
+          [
+            -11.0,
+            11.0
+          ],
+          [
+            0.0,
+            1.6
+          ]
+        ],
+        "minimum_z_mm": 0.0
+      }
+    },
+    {
+      "file": "inner-spacer-2p8.stl",
+      "valid": true,
+      "errors": [],
+      "file_bytes": 25684,
+      "declared_triangles": 512,
+      "expected_file_bytes": 25684,
+      "binary_length_valid": true,
+      "nonfinite_coordinates": 0,
+      "nonfinite_stored_normals": 0,
+      "vertices": 256,
+      "triangles": 512,
+      "zero_area_triangles": 0,
+      "duplicate_faces": 0,
+      "non_manifold_edges": 0,
+      "inconsistent_edge_winding": 0,
+      "connected_components": 1,
+      "signed_volume_mm3": 12.646566844726713,
+      "bounds_mm": [
+        [
+          -2.0,
+          2.0
+        ],
+        [
+          -2.0,
+          2.0
+        ],
+        [
+          0.0,
+          2.799999237060547
+        ]
+      ],
+      "minimum_z_mm": 0.0,
+      "welded_round_5_diagnostics": {
+        "vertices": 256,
+        "triangles": 512,
+        "zero_area_triangles": 0,
+        "duplicate_faces": 0,
+        "non_manifold_edges": 0,
+        "inconsistent_edge_winding": 0,
+        "connected_components": 1,
+        "signed_volume_mm3": 12.646545900333333,
+        "bounds_mm": [
+          [
+            -2.0,
+            2.0
+          ],
+          [
+            -2.0,
+            2.0
+          ],
+          [
+            0.0,
+            2.8
+          ]
+        ],
+        "minimum_z_mm": 0.0
+      }
+    },
+    {
+      "file": "outer-spacer-1p0.stl",
+      "valid": true,
+      "errors": [],
+      "file_bytes": 25684,
+      "declared_triangles": 512,
+      "expected_file_bytes": 25684,
+      "binary_length_valid": true,
+      "nonfinite_coordinates": 0,
+      "nonfinite_stored_normals": 0,
+      "vertices": 256,
+      "triangles": 512,
+      "zero_area_triangles": 0,
+      "duplicate_faces": 0,
+      "non_manifold_edges": 0,
+      "inconsistent_edge_winding": 0,
+      "connected_components": 1,
+      "signed_volume_mm3": 4.516632061408018,
+      "bounds_mm": [
+        [
+          -2.0,
+          2.0
+        ],
+        [
+          -2.0,
+          2.0
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "minimum_z_mm": 0.0,
+      "welded_round_5_diagnostics": {
+        "vertices": 256,
+        "triangles": 512,
+        "zero_area_triangles": 0,
+        "duplicate_faces": 0,
+        "non_manifold_edges": 0,
+        "inconsistent_edge_winding": 0,
+        "connected_components": 1,
+        "signed_volume_mm3": 4.5166227518,
+        "bounds_mm": [
+          [
+            -2.0,
+            2.0
+          ],
+          [
+            -2.0,
+            2.0
+          ],
+          [
+            0.0,
+            1.0
+          ]
+        ],
+        "minimum_z_mm": 0.0
+      }
+    },
+    {
+      "file": "bearing-fit-coupon.stl",
+      "valid": true,
+      "errors": [],
+      "file_bytes": 60784,
+      "declared_triangles": 1214,
+      "expected_file_bytes": 60784,
+      "binary_length_valid": true,
+      "nonfinite_coordinates": 0,
+      "nonfinite_stored_normals": 0,
+      "vertices": 603,
+      "triangles": 1214,
+      "zero_area_triangles": 0,
+      "duplicate_faces": 0,
+      "non_manifold_edges": 0,
+      "inconsistent_edge_winding": 0,
+      "connected_components": 1,
+      "signed_volume_mm3": 2072.1775777401695,
+      "bounds_mm": [
+        [
+          -20.0,
+          20.0
+        ],
+        [
+          -7.0,
+          7.0
+        ],
+        [
+          0.0,
+          5.0
+        ]
+      ],
+      "minimum_z_mm": 0.0,
+      "welded_round_5_diagnostics": {
+        "vertices": 603,
+        "triangles": 1214,
+        "zero_area_triangles": 0,
+        "duplicate_faces": 0,
+        "non_manifold_edges": 0,
+        "inconsistent_edge_winding": 0,
+        "connected_components": 1,
+        "signed_volume_mm3": 2072.177432178025,
+        "bounds_mm": [
+          [
+            -20.0,
+            20.0
+          ],
+          [
+            -7.0,
+            7.0
+          ],
+          [
+            0.0,
+            5.0
+          ]
+        ],
+        "minimum_z_mm": 0.0
+      }
+    }
+  ],
+  "scope": "Nominal solids only. Cap screw threads intentionally engage printed pilots and are excluded. Bearing internals, powered horn mounts, wiring, tolerances and loaded driving behavior remain unvalidated."
+}

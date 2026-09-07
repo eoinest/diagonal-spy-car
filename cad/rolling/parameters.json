@@ -1,0 +1,18 @@
+{
+  "revision": "0.3-passive-wheel-fit-prototype",
+  "units": "mm",
+  "base_model": "../compact/servo-pair.blend",
+  "bearing": {"name": "MR83ZZ", "bore": 3.0, "outside_diameter": 8.0, "width": 3.0},
+  "axle": {"part": "STR601M3X8", "shoulder_diameter": 3.0, "shoulder_length": 8.0, "thread_diameter": 2.0, "thread_length": 3.8, "head_diameter": 5.0, "head_height": 2.0, "socket_across_flats": 2.0},
+  "mount": {"outer_face_x": 18.5, "inner_face_x": 12.0, "width_y": 8.0, "top_z": 12.5, "shoulder_recess_depth": 1.0, "shoulder_bore": 3.15, "thread_clearance": 2.2, "nut_center_x": 15.0, "nut_slot_width_x": 1.9, "nut_across_flats_clearance": 4.2},
+  "wheel": {"diameter": 30.0, "width": 5.0, "inner_face_x": 19.5, "bearing_seat_diameter": 8.1, "bearing_seat_depth": 3.2, "through_bore": 7.0, "cap_diameter": 22.0, "cap_thickness": 1.6, "cap_screw_radius": 8.0, "cap_screw_clearance": 2.2, "cap_screw_pilot": 1.6, "cap_screw_length": 6.0},
+  "spacers": {"bore": 3.2, "outside_diameter": 4.0, "inner_length": 2.8, "outer_length": 1.0},
+  "coupon_seat_diameters": [8.0, 8.1, 8.2],
+  "notes": [
+    "Front free wheel is +X,+Y; rear free wheel is -X,-Y. Y and Z are inherited from the opposite servo shafts.",
+    "One bearing per passive wheel is a compact prototype choice, not a validated moment-load design.",
+    "Servo geometry and mounting holes remain assumed. Bearing envelope and axle dimensions are sourced; ring internals and cap screws are representative.",
+    "Powered wheels are context envelopes only; no horn interface or powered-wheel STL is supplied here.",
+    "Printed spacers have 0.4 mm radial walls. Inspect slicer paths and actual spin clearance; metal 3 mm ID / 4 mm OD spacers are an alternative."
+  ]
+}
