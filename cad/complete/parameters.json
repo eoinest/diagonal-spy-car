@@ -1,0 +1,56 @@
+{
+  "revision": "0.5-complete-nominal-assembly",
+  "units": "mm",
+  "base_model": "../rolling/rolling-chassis.blend",
+  "deck": {
+    "width": 52,
+    "length": 76,
+    "bottom": 25,
+    "thickness": 2.2
+  },
+  "battery": {
+    "length": 48,
+    "width": 17,
+    "height": 12,
+    "center": [
+      0,
+      -2.5,
+      34
+    ]
+  },
+  "buck": {
+    "length": 43,
+    "width": 21,
+    "height": 14,
+    "pcb_thickness": 1.6,
+    "pcb_bottom": 29.2,
+    "center_xy": [
+      0,
+      -25
+    ]
+  },
+  "s2": {
+    "length": 34.3,
+    "width": 25.4,
+    "pcb_thickness": 1.6,
+    "pcb_bottom": 29.2,
+    "center_xy": [
+      0,
+      23
+    ]
+  },
+  "horn": {
+    "arm_length": 20,
+    "arm_width": 5,
+    "arm_thickness": 2,
+    "hub_diameter": 7,
+    "clearance_per_side": 0.25
+  },
+  "notes": [
+    "All three electronic assemblies are rotated -90 degrees around Z after generation, so their long dimensions run X.",
+    "Battery dimensions and S2 outline are published nominal values; owned buck dimensions, servo details and horn fit remain unmeasured.",
+    "Deck snaps around the unchanged v0.4 chassis. Its integral axles are preserved.",
+    "Powered wheels capture the owned double-arm horn and retain its factory center screw, modeled only as an assumed interface.",
+    "Wire routes and unselected small-part packages are packaging references, not solder-joint or manufacturing drawings."
+  ]
+}

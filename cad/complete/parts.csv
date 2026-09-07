@@ -1,0 +1,15 @@
+item,quantity,source_or_file,status
+Integral-axle chassis,1,../rolling/rolling-chassis.stl,Existing PETG fit prototype preserved
+Passive bearing wheel,2,../rolling/passive-wheel.stl,Existing press-fit wheel
+MR83ZZ bearing,2,3 x 8 x 3 mm nominal,Purchased bearing fits need coupons
+Continuous servo,2,Owned MG90S-style units,Unmeasured clone geometry
+Factory horn and supplied center screw,2,Included with owned servo,Assumed double-arm horn must be measured
+Powered left wheel,1,powered-wheel-left.stl,New horn-pocket fit prototype
+Powered right wheel,1,powered-wheel-right.stl,New horn-pocket fit prototype
+Removable electronics carrier,1,electronics-deck.stl,New PETG prototype with integral holders
+Flexible battery keeper,2,battery-band-tpu.stl,Print in TPU and verify pouch clearance
+Battery protective padding,1,0.8 mm nominal foam,Trim to actual pouch and cradle
+LOLIN S2 Mini,1,../../electronics/camera-free-bom.csv,Owned board; published outline
+Large adjustable buck,1,../../electronics/camera-free-bom.csv,Owned board; 43 x 21 x 14 mm provisional
+Lumenier 300mAh 2S XT30 pack,1,../../electronics/camera-free-bom.csv,Selected 48 x 17 x 12 mm pack
+Harness connectors fuse capacitors and switched sensing parts,1,../../electronics/camera-free-bom.csv,Full quantities and electrical requirements in electronics BOM

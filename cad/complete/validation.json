@@ -1,0 +1,364 @@
+{
+  "revision": "0.5-complete-nominal-assembly",
+  "units": "mm",
+  "scope": "Nominal rigid-part fit. No insertion, strength, thermal or routed-wire collision validation.",
+  "stl": [
+    {
+      "file": "electronics-deck.stl",
+      "valid": true,
+      "errors": [],
+      "file_bytes": 297184,
+      "declared_triangles": 5942,
+      "expected_file_bytes": 297184,
+      "binary_length_valid": true,
+      "nonfinite_coordinates": 0,
+      "nonfinite_stored_normals": 0,
+      "vertices": 2947,
+      "triangles": 5942,
+      "zero_area_triangles": 0,
+      "duplicate_faces": 0,
+      "non_manifold_edges": 0,
+      "inconsistent_edge_winding": 0,
+      "connected_components": 1,
+      "signed_volume_mm3": 10947.065749914947,
+      "bounds_mm": [
+        [
+          -26.0,
+          26.0
+        ],
+        [
+          -38.0,
+          38.0
+        ],
+        [
+          0.0,
+          32.900001525878906
+        ]
+      ],
+      "minimum_z_mm": 0.0,
+      "welded_round_5_diagnostics": {
+        "vertices": 2947,
+        "triangles": 5942,
+        "zero_area_triangles": 0,
+        "duplicate_faces": 0,
+        "non_manifold_edges": 0,
+        "inconsistent_edge_winding": 0,
+        "connected_components": 1,
+        "signed_volume_mm3": 10947.063065978102,
+        "bounds_mm": [
+          [
+            -26.0,
+            26.0
+          ],
+          [
+            -38.0,
+            38.0
+          ],
+          [
+            0.0,
+            32.9
+          ]
+        ],
+        "minimum_z_mm": 0.0
+      }
+    },
+    {
+      "file": "battery-band-tpu.stl",
+      "valid": true,
+      "errors": [],
+      "file_bytes": 13284,
+      "declared_triangles": 264,
+      "expected_file_bytes": 13284,
+      "binary_length_valid": true,
+      "nonfinite_coordinates": 0,
+      "nonfinite_stored_normals": 0,
+      "vertices": 132,
+      "triangles": 264,
+      "zero_area_triangles": 0,
+      "duplicate_faces": 0,
+      "non_manifold_edges": 0,
+      "inconsistent_edge_winding": 0,
+      "connected_components": 1,
+      "signed_volume_mm3": 288.0126151458021,
+      "bounds_mm": [
+        [
+          -9.100000381469727,
+          9.100000381469727
+        ],
+        [
+          -10.5,
+          10.5
+        ],
+        [
+          0.0,
+          4.0
+        ]
+      ],
+      "minimum_z_mm": 0.0,
+      "welded_round_5_diagnostics": {
+        "vertices": 132,
+        "triangles": 264,
+        "zero_area_triangles": 0,
+        "duplicate_faces": 0,
+        "non_manifold_edges": 0,
+        "inconsistent_edge_winding": 0,
+        "connected_components": 1,
+        "signed_volume_mm3": 288.01261300188503,
+        "bounds_mm": [
+          [
+            -9.1,
+            9.1
+          ],
+          [
+            -10.5,
+            10.5
+          ],
+          [
+            0.0,
+            4.0
+          ]
+        ],
+        "minimum_z_mm": 0.0
+      }
+    },
+    {
+      "file": "powered-wheel-left.stl",
+      "valid": true,
+      "errors": [],
+      "file_bytes": 85384,
+      "declared_triangles": 1706,
+      "expected_file_bytes": 85384,
+      "binary_length_valid": true,
+      "nonfinite_coordinates": 0,
+      "nonfinite_stored_normals": 0,
+      "vertices": 855,
+      "triangles": 1706,
+      "zero_area_triangles": 0,
+      "duplicate_faces": 0,
+      "non_manifold_edges": 0,
+      "inconsistent_edge_winding": 0,
+      "connected_components": 1,
+      "signed_volume_mm3": 3541.017294424182,
+      "bounds_mm": [
+        [
+          -14.97544002532959,
+          14.97544002532959
+        ],
+        [
+          -14.97544002532959,
+          14.97544002532959
+        ],
+        [
+          0.0,
+          8.199999809265137
+        ]
+      ],
+      "minimum_z_mm": 0.0,
+      "welded_round_5_diagnostics": {
+        "vertices": 855,
+        "triangles": 1706,
+        "zero_area_triangles": 0,
+        "duplicate_faces": 0,
+        "non_manifold_edges": 0,
+        "inconsistent_edge_winding": 0,
+        "connected_components": 1,
+        "signed_volume_mm3": 3541.0175082130563,
+        "bounds_mm": [
+          [
+            -14.97544,
+            14.97544
+          ],
+          [
+            -14.97544,
+            14.97544
+          ],
+          [
+            0.0,
+            8.2
+          ]
+        ],
+        "minimum_z_mm": 0.0
+      }
+    },
+    {
+      "file": "powered-wheel-right.stl",
+      "valid": true,
+      "errors": [],
+      "file_bytes": 85984,
+      "declared_triangles": 1718,
+      "expected_file_bytes": 85984,
+      "binary_length_valid": true,
+      "nonfinite_coordinates": 0,
+      "nonfinite_stored_normals": 0,
+      "vertices": 861,
+      "triangles": 1718,
+      "zero_area_triangles": 0,
+      "duplicate_faces": 0,
+      "non_manifold_edges": 0,
+      "inconsistent_edge_winding": 0,
+      "connected_components": 1,
+      "signed_volume_mm3": 3541.017448679578,
+      "bounds_mm": [
+        [
+          -14.97544002532959,
+          14.97544002532959
+        ],
+        [
+          -14.97544002532959,
+          14.97544002532959
+        ],
+        [
+          0.0,
+          8.199999809265137
+        ]
+      ],
+      "minimum_z_mm": 0.0,
+      "welded_round_5_diagnostics": {
+        "vertices": 861,
+        "triangles": 1718,
+        "zero_area_triangles": 0,
+        "duplicate_faces": 0,
+        "non_manifold_edges": 0,
+        "inconsistent_edge_winding": 0,
+        "connected_components": 1,
+        "signed_volume_mm3": 3541.0175166042995,
+        "bounds_mm": [
+          [
+            -14.97544,
+            14.97544
+          ],
+          [
+            -14.97544,
+            14.97544
+          ],
+          [
+            0.0,
+            8.2
+          ]
+        ],
+        "minimum_z_mm": 0.0
+      }
+    }
+  ],
+  "rigid_mount_collisions": [],
+  "nominal_clearances_mm": {
+    "deck_to_wheel_top": 1.5,
+    "underhook_to_base_bottom": 0.2,
+    "pcb_to_deck_top": 2.0,
+    "band_bottom_to_wheel_top": 0.5
+  },
+  "terminals": {
+    "battery": {
+      "positive": [
+        -24.0,
+        -4.69999885559082,
+        35.0
+      ],
+      "negative": [
+        -24.0,
+        -0.29999879002571106,
+        35.0
+      ],
+      "balance_lead_exit": [
+        -24.0,
+        -2.4999988079071045,
+        32.0
+      ]
+    },
+    "buck": {
+      "IN+": [
+        -19.900001525878906,
+        -16.100000381469727,
+        30.860000610351562
+      ],
+      "IN-": [
+        -19.900001525878906,
+        -33.89999771118164,
+        30.860000610351562
+      ],
+      "OUT+": [
+        19.899999618530273,
+        -16.10000228881836,
+        30.860000610351562
+      ],
+      "OUT-": [
+        19.899999618530273,
+        -33.900001525878906,
+        30.860000610351562
+      ]
+    },
+    "s2": {
+      "GPIO3": [
+        6.350000858306885,
+        34.43000030517578,
+        30.860000610351562
+      ],
+      "GPIO7": [
+        1.27000093460083,
+        34.43000030517578,
+        30.860000610351562
+      ],
+      "GPIO18": [
+        -1.27000093460083,
+        11.570000648498535,
+        30.860000610351562
+      ],
+      "GPIO16": [
+        -3.809999942779541,
+        11.570000648498535,
+        30.860000610351562
+      ],
+      "GND": [
+        -6.350000858306885,
+        11.570000648498535,
+        30.860000610351562
+      ],
+      "VBUS": [
+        -8.89000129699707,
+        11.570000648498535,
+        30.860000610351562
+      ],
+      "USB_C_front_center": [
+        -18.350000381469727,
+        23.000001907348633,
+        32.45000076293945
+      ]
+    }
+  },
+  "unverified": [
+    "Owned buck dimensions and IC",
+    "Servo geometry and supplied horn",
+    "Clip insertion and fatigue",
+    "PCB underside parts and solder clearance",
+    "Friction retention of PCB rails and bearing fits",
+    "Wire service loops and small-package part selection"
+  ],
+  "component_inventory": {
+    "base": 15,
+    "deck": 1,
+    "battery_band": 2,
+    "drive_left": 4,
+    "drive_right": 4,
+    "harness": 80,
+    "battery": 13,
+    "buck": 53,
+    "s2": 217
+  },
+  "assembly_bounds_mm": {
+    "min": [
+      -26.02851676940918,
+      -38.0,
+      -6.5
+    ],
+    "max": [
+      26.30158805847168,
+      38.0,
+      47.875
+    ],
+    "size": [
+      52.33010482788086,
+      76.0,
+      54.375
+    ]
+  }
+}
