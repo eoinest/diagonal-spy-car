@@ -1,29 +1,26 @@
-# Passive wheel bearings and axles
+# Passive wheel parts — v0.4
 
-Shopping and fit notes checked **2026-09-07**. This version uses **one conventional steel bearing in each of the two passive wheels**. The bearing outer ring turns with the wheel; its inner ring sits on a stationary smooth shoulder screw.
+This **mechanical stage** uses the two owned continuous-rotation MG90S servos and two purchased bearings. Electronics are outside this list. The chassis is one printed part with integrated stationary axles, inner-ring abutments and servo-ear clips. Wheels are separate printed moving parts. The interface to the servos’ original supplied horns remains future work.
 
-| Part | Quantity | Price / availability | Purchase and image |
+| Part | Quantity | Price / availability | Source |
 |---|---:|---|---|
-| Avid MR83ZZ, metal shields, steel/chrome bearing, **3 mm ID × 8 mm OD × 3 mm wide** | 2 | **$1.00 each**; listing showed **73 in stock** | [Avid product](https://www.avidrc.com/product/p/227/3x8x3-Metal) · [product photograph](https://www.avidrc.com/shop/images/products/large_227_5602db2f85619.jpg) |
-| STR601M3X8 stainless shoulder screw, **3 mm shoulder × 8 mm long**, **M2 × 0.4 thread × 3.8 mm long** | 2 | **$6.79 each** at Zoro; current stock/dispatch date **not exposed and not verified** | [Zoro product](https://www.zoro.com/zoro-select-shoulder-screw-m2-040-thr-sz-38-mm-thr-lg-8-mm-shoulder-lg-18-8-stainless-steel-str601m3x8/i/G4578621/) · [catalog product image](https://www.zoro.com/static/cms/product/large/Z-tAp0qcpEx_.JPG) |
-| M2 × 0.4 metal hex nut, captured in chassis axle mount | 2 | Unpriced; measure purchased nut before finalizing its pocket | Standard hardware; source not selected |
-| M2 × 6 mm screws for removable bearing-retaining caps | 6 | **Provisional length**, unpriced; three per wheel | Confirm cap thickness and usable thread engagement before buying |
-| Inner-ring spacers, **4 mm OD × 3.2 mm ID**, printed prototype | 4 | Print **two 2.8 mm long** and **two 1.0 mm long** | One of each length per wheel; fit checks below |
+| Owned continuous-rotation MG90S servos | 2 | Already owned | Measure the actual cases, mounting ears and supplied horns |
+| Avid MR83ZZ, steel/chrome bearing with metal shields, **3 mm ID × 8 mm OD × 3 mm wide** | 2 | **$1.00 each**, last checked **2026-09-07**; listing then showed **73 in stock** | [Buy from Avid](https://www.avidrc.com/product/p/227/3x8x3-Metal) · [product photograph](https://www.avidrc.com/shop/images/products/large_227_5602db2f85619.jpg) |
 
-**Bearing + shoulder-screw subtotal: $15.58 USD.** Nuts, cap screws, spacers, printing, shipping and taxes are excluded. Servo mounting and other chassis hardware are outside this list. Prices and stock can change.
+**Additional purchased mechanical parts: two bearings, $2.00 total**, excluding shipping, taxes and printing material. There are no purchased axles, caps, spacers, nuts or screws in v0.4. Prices and availability can change.
 
-## Wheel and axle fit
+## Bearing and wheel fit
 
-The printed wheel has a nominal **8.1 mm bearing pocket** and removable retaining caps that capture the **outer ring**. This pocket dimension is a prototype starting point, not a guaranteed fit across printers. Print a fit coupon first: the bearing should seat without damage, remain concentric, and avoid spinning loosely in the wheel. Caps must clear the inner ring, shields and stationary spacers.
+Each passive wheel carries one bearing. Its **outer ring fits into the wheel’s nominal 8.0 mm pocket** and rotates with the wheel. Its **inner ring fits over the chassis’s nominal 3.0 mm stationary printed journal**. These are intended friction fits; equal nominal CAD dimensions do **not** establish a reliable press fit on an FDM printer.
 
-The stationary axle uses the screw's smooth **3 mm × 8 mm shoulder**, seated **1 mm into the chassis mount**, with its M2 thread secured by a captured metal nut. Keep the threaded section out of the bearing bore. The screw head is **5 mm diameter × 2 mm high**; do not put that full head face directly against the bearing shield. Place the narrow spacers against the **inner ring only**.
+A **4.0 mm OD abutment**, integrated into the chassis, contacts the inner ring only. The wheel and bearing shield must clear this stationary feature. The [KMT manufacturer catalog](https://www.e-kmt.com/wp-content/themes/dc_e-kmt/img/download/dl03.pdf), miniature-bearing table on printed pages 5–6, gives **4.0 mm maximum shaft-abutment diameter for MR83ZZ**. This is supporting reference geometry, **not an Avid-specific abutment drawing**: inspect the purchased bearing’s exposed inner-ring contact land and confirm the printed abutment clears its shield.
 
-The nominal axial allocation is **1.00 mm mount engagement + 2.80 mm spacer + 3.00 mm bearing + 1.00 mm spacer = 7.80 mm**, leaving approximately **0.20 mm** relative to an 8.00 mm shoulder. These spacer heights align with 0.2 mm print layers. This is a fit target, not guaranteed endplay: Zoro specifies shoulder length **8.00–8.25 mm** and diameter **2.96–3.00 mm**. Measure the actual screws, bearings, printed mount and spacers; adjust spacer lengths so the axle is securely retained while the wheel turns freely with minimal axial play. Do not tighten away excessive clearance by loading the shield or distorting the printed mount. Do not force an oversized shoulder through the bearing.
+There is **no end clip**. Axial retention depends entirely on friction at both the bearing-to-wheel and bearing-to-journal interfaces. Pull-off resistance, PETG creep, journal durability and the physical fits have not been validated. The nominal model must not be treated as a proven retained wheel assembly.
 
-## Spacer material and contact limits
+## Fit coupon and physical checks
 
-The printed **4 mm OD / 3.2 mm ID** spacers are prototypes with just **0.4 mm radial wall thickness**. Inspect the slicer to confirm a continuous wall is produced, and measure the printed lengths. A more durable alternative is **brass tube with nominal 3 mm ID / 4 mm OD**, cut to the measured required lengths, with square ends and all burrs removed. No purchase source has been selected for this tube. Verify that its actual bore slides over the delivered shoulder; nominal tube dimensions alone do not guarantee clearance. Replace any spacer that rubs a shield or sheds material.
+Before printing the full chassis, print a coupon with **7.9 / 8.0 / 8.1 mm bearing holes** and **2.9 / 3.0 / 3.1 mm journal pegs**. Reproduce the final parts’ **horizontal bore/journal orientation, supports, material and slicer settings**; a vertical coupon does not characterize the horizontal features. Remove support material carefully and measure the resulting features. If none fits, adjust the coupon sizes before changing the complete model.
 
-The [KMT manufacturer catalog](https://www.e-kmt.com/wp-content/themes/dc_e-kmt/img/download/dl03.pdf), miniature-bearing table on printed pages 5–6, lists **4.0 mm maximum shaft-abutment diameter for MR83ZZ**. This supports the provisional 4 mm spacer OD, but **it is not an Avid-specific abutment drawing**. Avid publishes the bearing's overall dimensions, not the exact exposed inner-ring contact land. Inspect the purchased bearings and confirm both spacer faces touch only that land before final assembly. Supplier differences, printing tolerances and screw-head fillets all require physical fit verification.
+Choose fits that retain both rings without cracking the wheel, damaging the printed journal or causing bearing drag. When seating a bearing in the wheel, apply force to its outer ring; when seating it on the journal, support its inner ring. Do not force assembly loads through the balls or shields.
 
-With the axle secured and caps installed, turn each wheel by hand and check for shield rubbing, binding, bearing movement in the wheel, and excessive tilt or axial play. Repeat after a short low-speed floor test before committing to final printed parts.
+With the wheel installed, verify free rotation, shield clearance, low wobble and secure axial retention. Pull the wheel outward by hand to test both friction interfaces and check again after repeated rotation, a short low-speed floor test and time under load. Any loosening, creep, binding or easy pull-off means the fit needs revision before use. Check the integrated servo-ear clips against the actual servos as well; their retention is also unverified until physically tested.

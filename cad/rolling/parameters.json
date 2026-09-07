@@ -1,18 +1,63 @@
 {
-  "revision": "0.3-passive-wheel-fit-prototype",
+  "revision": "0.4-integral-axle-fit-prototype",
   "units": "mm",
   "base_model": "../compact/servo-pair.blend",
-  "bearing": {"name": "MR83ZZ", "bore": 3.0, "outside_diameter": 8.0, "width": 3.0},
-  "axle": {"part": "STR601M3X8", "shoulder_diameter": 3.0, "shoulder_length": 8.0, "thread_diameter": 2.0, "thread_length": 3.8, "head_diameter": 5.0, "head_height": 2.0, "socket_across_flats": 2.0},
-  "mount": {"outer_face_x": 18.5, "inner_face_x": 12.0, "width_y": 8.0, "top_z": 12.5, "shoulder_recess_depth": 1.0, "shoulder_bore": 3.15, "thread_clearance": 2.2, "nut_center_x": 15.0, "nut_slot_width_x": 1.9, "nut_across_flats_clearance": 4.2},
-  "wheel": {"diameter": 30.0, "width": 5.0, "inner_face_x": 19.5, "bearing_seat_diameter": 8.1, "bearing_seat_depth": 3.2, "through_bore": 7.0, "cap_diameter": 22.0, "cap_thickness": 1.6, "cap_screw_radius": 8.0, "cap_screw_clearance": 2.2, "cap_screw_pilot": 1.6, "cap_screw_length": 6.0},
-  "spacers": {"bore": 3.2, "outside_diameter": 4.0, "inner_length": 2.8, "outer_length": 1.0},
-  "coupon_seat_diameters": [8.0, 8.1, 8.2],
+  "bearing": {
+    "name": "MR83ZZ",
+    "bore": 3.0,
+    "outside_diameter": 8.0,
+    "width": 3.0
+  },
+  "axle": {
+    "journal_diameter": 3.0,
+    "journal_length": 3.0,
+    "lead_in_length": 0.8,
+    "tip_diameter": 2.4,
+    "abutment_diameter": 4.0,
+    "abutment_length": 2.8
+  },
+  "mount": {
+    "outer_face_x": 18.5,
+    "inner_face_x": 12.0,
+    "width_y": 8.0,
+    "top_z": 12.5
+  },
+  "wheel": {
+    "diameter": 30.0,
+    "width": 5.0,
+    "inner_face_x": 19.5,
+    "bearing_seat_diameter": 8.0,
+    "bearing_seat_depth": 3.2,
+    "through_bore": 7.0
+  },
+  "coupon_seat_diameters": [
+    7.9,
+    8.0,
+    8.1
+  ],
   "notes": [
-    "Front free wheel is +X,+Y; rear free wheel is -X,-Y. Y and Z are inherited from the opposite servo shafts.",
-    "One bearing per passive wheel is a compact prototype choice, not a validated moment-load design.",
-    "Servo geometry and mounting holes remain assumed. Bearing envelope and axle dimensions are sourced; ring internals and cap screws are representative.",
-    "Powered wheels are context envelopes only; no horn interface or powered-wheel STL is supplied here.",
-    "Printed spacers have 0.4 mm radial walls. Inspect slicer paths and actual spin clearance; metal 3 mm ID / 4 mm OD spacers are an alternative."
+    "Two solid journals, their root abutments and four servo retaining clips are all part of one printed chassis solid.",
+    "Only purchased mechanical parts in this stage are the two owned servos and two MR83ZZ bearings. Moving wheels are separate prints.",
+    "The bearing outer ring is friction-fit into the wheel; its inner ring is friction-fit onto the integral printed journal. No positive axial end lock is used.",
+    "Both fits need coupons and actual pull-off/spin checks. CAD nominal diameters are starting values, not measured interference fits.",
+    "Horizontal axles require slicer supports, careful removal and fit cleanup. Avoid splitting the small journals.",
+    "Servo clip details are assumed; static clearance checks do not establish insertion force, fatigue life or physical fit.",
+    "Powered wheel and horn geometry remains an explicitly marked context envelope."
+  ],
+  "servo_clips": {
+    "stem_inner_x": 7.2,
+    "stem_thickness": 1.2,
+    "width_y": 3.8,
+    "hook_inner_x": 6.0,
+    "hook_under_z": 14.9,
+    "tip_top_z": 15.5,
+    "top_z": 16.6,
+    "root_radius": 0.8,
+    "release_tab_extension": 0.9
+  },
+  "coupon_axle_diameters": [
+    2.9,
+    3.0,
+    3.1
   ]
 }
