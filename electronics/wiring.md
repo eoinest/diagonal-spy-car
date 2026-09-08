@@ -67,7 +67,7 @@ flowchart LR
 | R_BASE_PD **100 kΩ** | QN base → GND | Default OFF when MCU is unpowered or reset |
 | Battery three-contact balance connector | Compatible 2S balance charger / per-cell monitor | Verify connector orientation and cell taps; never connect it directly to S2 pins |
 
-Use a DC-rated input fuse and insulated holder selected for the battery fault current, wiring and measured inrush; do not call the fuse servo-stall protection. Keep supply/return wires short and use heatshrink and strain relief. The external **220 µF / 10 V plus 100 nF** values are starting decoupling, not a verified fix for voltage dips or inadequate converter capacity. Leave the buck's fitted capacitors in place. Use insulated perfboard for the sensing circuit and a suitably sized soldered harness for power distribution.
+Use a DC-rated input fuse in an insulated assembly selected for the battery fault current, wiring and measured inrush; do not call the fuse servo-stall protection. Keep supply/return wires short and use heatshrink and strain relief. The external **220 µF / 10 V plus 100 nF** values are starting decoupling, not a verified fix for voltage dips or inadequate converter capacity. Leave the buck's fitted capacitors in place. Use insulated perfboard for the sensing circuit and a suitably sized soldered harness for power distribution.
 
 ## Exact S2 Mini pads
 
@@ -186,3 +186,12 @@ Use these **signal names**, locating the exact package pins from TI's diagram: G
 9. **Finish and test briefly.** Insulate and strain-relieve joints, keep screws/sharp edges away from the pouch, and perform a short supervised smooth-floor run. Record each cell voltage and measured runtime. Unplug XT30 after every run and remove the pack for balance charging or storage.
 
 Actual servo current, neutral, logic compatibility, ADC calibration, power-off isolation, radio failsafe and converter thermal/load performance remain hardware validation tasks. CAD renders and successful code compilation do not establish these results.
+
+
+## Fuse photograph and the under-deck components
+
+The illustrated guide shows a Littelfuse PICO II 251 family reference photograph on pages 1 and 6. A compact **candidate**, not a tested final selection, is [0251004.MXL](https://www.digikey.com/en/products/detail/littelfuse-inc/0251004-MXL/700745): 4 A very fast acting, rated 125 V DC with 300 A DC interrupt capacity. The [manufacturer drawing](https://www.littelfuse.com/assetdocs/littelfuse_fuse_251_253_datasheet.pdf?assetguid=f47a0bb7-8ede-4679-9646-7114c3787688) gives a 7.11 mm body length and 2.80 mm maximum diameter. Leave additional room for leads, insulation and strain relief. Validate the candidate against measured inrush, wiring and prospective fault current. This is not an instantaneous 4 A limiter.
+
+Wire this non-polar axial fuse in series near the battery connector in the **positive harness lead**, before the buck and sensing branch. Solder and insulate it with strain relief; an axial part does not need a cartridge holder. It is not resettable. The current Blender fuse remains a generic reference envelope, not an accurate model of this newly identified part.
+
+The small under-deck perfboard holds the switched battery-voltage sensing circuit above. The divider scales battery voltage for GPIO3 and the two-transistor circuit lets GPIO7 enable sensing without continuously feeding an unpowered ADC. This supports the existing firmware's calibrated low-pack motion stop; it is not required simply to generate servo commands, and omitting it would require revising the current firmware and battery-monitoring plan. The nearby capacitors smooth supply transients. Neither these parts nor the fuse provide charging or an automatic low-voltage power disconnect.
