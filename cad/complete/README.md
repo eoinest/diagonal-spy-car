@@ -8,6 +8,8 @@ The battery, buck and S2 sit in one layer on a **52 x 76 mm removable printed de
 
 ## Battery dimension correction
 
+**Independent audit, September 8:** the saved model and the currently open Blender scene have no battery scaling defect. However, the manufacturer listing (48 × 17 × 12 mm) conflicts with its linked MSDS (13 × 16 × 45 mm, axes unspecified). The current shape is therefore a **provisional packaging envelope**, not a verified replica of the physical pouch. See [the independent audit](battery-audit.md) for measurements and both primary sources. Matching bounds does not establish the correct tapered wrap silhouette.
+
 ![Battery in true orthographic views](battery-dimensions.png)
 
 The selected pack is the **Lumenier 300 mAh 2S XT30, SKU 10188**. Its manufacturer lists **48 mm long × 17 mm wide × 12 mm high**. In the assembled car these are X × Y × Z: the 48 mm length runs across the deck. This is the same pack photographed in the wiring guide; the guide photo is not a scale drawing.
@@ -33,7 +35,7 @@ The camera and external charging/transmitter equipment are not mounted on this c
 
 | Feature | Model basis |
 | --- | --- |
-| Battery pouch envelope | Published **48 x 17 x 12 mm** for the selected [Lumenier pack](https://www.racedayquads.com/products/lumenier-300mah-2s-75c-lipo-battery-xt-30). Lead lengths, exit shape, wrap/seams and exact connector subtype remain approximations. |
+| Battery pouch envelope | Provisional **48 x 17 x 12 mm** for the selected [Lumenier pack](https://www.racedayquads.com/products/lumenier-300mah-2s-75c-lipo-battery-xt-30). Lead lengths, exit shape, wrap/seams and exact connector subtype remain approximations. |
 | S2 PCB | Official **34.3 x 25.4 mm** outline, **2 mm holes** and **20.4 mm transverse hole spacing** from [WEMOS](https://docs.wemos.cc/en/latest/_static/files/dim_s2_mini_v1.0.0.pdf). Hole Y, corner/notch details and component locations are image-derived nominal assumptions. |
 | S2 headers | Nominal 2.54 mm pitch, columns at X +/-11.43 and +/-8.89 mm before rotation, supported by official photographs and the [KiCad footprint contribution](https://gitlab.com/kicad/libraries/kicad-footprints/-/merge_requests/2904). These coordinates are not fully specified in the WEMOS mechanical drawing. |
 | S2 main IC | **7 x 7 x 0.85 mm nominal** QFN package from [Espressif](https://documentation.espressif.com/esp32-s2_datasheet_en.pdf). PCB thickness 1.6 mm, USB and other package heights are unmeasured assumptions. |
