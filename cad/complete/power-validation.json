@@ -1,0 +1,39 @@
+{
+  "revision": "0.5.2-power-service",
+  "source_sha256": "cb832d3dd551e1c286a671b1b331590661ef3f5da08e54d637d75f7e3457828c",
+  "preserved_meshes": 273,
+  "protected_geometry_unchanged": true,
+  "rigid_package_collisions": [],
+  "fuse_body_mm": {
+    "length": 7.11,
+    "diameter_max": 2.8,
+    "lead_diameter": 0.64
+  },
+  "J_PWR": "Two insulated mating halves in positive lead only; connector envelope remains provisional",
+  "bypass": "100 nF at S2 VBUS/GND, after J_PWR",
+  "perfboard_pitch_mm": 2.54,
+  "limitations": [
+    "Routing illustrates nets; complete wire collision and bend-radius validation is not performed.",
+    "Perfboard does not contain a verified copper/jumper layout.",
+    "Existing fuse pocket retained; axial fuse must be insulated and strain-relieved, with loose retention checked physically.",
+    "Home-Wi-Fi-first OTA is planned; current firmware creates SpyCar-Update.",
+    "Published nominal components do not replace measurements of owned hardware."
+  ],
+  "assembly_bounds_mm": {
+    "min": [
+      -31.28108787536621,
+      -38.0,
+      -6.5
+    ],
+    "max": [
+      28.447792053222656,
+      38.0,
+      47.875
+    ],
+    "size": [
+      59.72887992858887,
+      76.0,
+      54.375
+    ]
+  }
+}

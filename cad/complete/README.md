@@ -1,10 +1,28 @@
-# Complete camera-free assembly - revision 0.5.1
+# Complete camera-free assembly - revision 0.5.2
 
-Open **[complete-spy-car.blend](complete-spy-car.blend)**. It contains `01 ASSEMBLED`, `02 EXPLODED`, and `03 BATTERY DIMENSIONS` scenes, named component collections, millimetre units, and source/confidence properties on the new electronics objects. The exploded scene hides loose wire curves to expose the parts.
+Open **[complete-spy-car.blend](complete-spy-car.blend)**. It contains `01 ASSEMBLED`, `02 EXPLODED`, `03 BATTERY DIMENSIONS`, `04 POWER SERVICE`, and `05 CONNECTOR DETAILS` scenes, named component collections, millimetre units, and source/confidence properties on the new electronics objects. The exploded scene hides loose wire curves to expose the parts.
 
 ![Assembled car](assembly.png)
 
-The battery, buck and S2 sit in one layer on a **52 x 76 mm removable printed deck**. This is slightly wider and longer than the wheel-only revision, but avoids stacking the buck above the S2. The main platform underside is 25 mm above the model origin, giving **1.5 mm nominal clearance above the 30 mm wheels**. Inspect [validation.json](validation.json) for the actual assembled bounds, including reference connectors and routed wires.
+The battery, buck and S2 sit in one layer on a **52 x 76 mm removable printed deck**. This is slightly wider and longer than the wheel-only revision, but avoids stacking the buck above the S2. The main platform underside is 25 mm above the model origin, giving **1.5 mm nominal clearance above the 30 mm wheels**. Inspect [power-validation.json](power-validation.json) for the updated assembled bounds, including reference connectors and routed wires. The earlier [validation.json](validation.json) records the unchanged printed-part checks from revision 0.5.1.
+
+## Power and service accuracy update
+
+Revision **0.5.2** updates the saved assembly directly and preserves all **273 existing mechanical and primary-component meshes**, including their transforms. It does not regenerate the chassis or replace the locally saved scene. The printed STL geometry is unchanged.
+
+- `J_PWR` now has two insulated mating halves and separate bus-side / S2-side wires. It carries only positive 5 V; ground stays continuous. The **9.4 x 2.8 x 3 mm housing allowance is provisional**, since no exact connector has been selected. Keep it joined for driving and OTA; separate it for isolated USB recovery.
+- The generic rectangular fuse was replaced by a **7.11 mm long, 2.80 mm maximum diameter** axial body for the provisional Littelfuse 0251004.MXL, with **0.64 mm leads**, bent leads and insulated joint allowances. The existing pocket is retained as a loose carrier, not a validated snap fit for the axial fuse. Verify retention, insulation, strain relief and the lead exits physically.
+- Positive and ground distribution junctions are now explicit insulated splices outside the battery envelope. The main positive wire is divided at the fuse terminals instead of running through its body. Battery sensing branches from its fused side.
+- The 100 nF bus bypass now sits at the S2 VBUS/GND branch **after J_PWR**, with short reference leads. The ADC capacitor also has reference leads. Perfboard pad pitch is **2.54 mm**; this is still a placement illustration, without a verified solderable jumper layout.
+- `04 POWER SERVICE` hides the pouch, carrier and running gear to expose the power parts. It is an inspection view of the same arrangement, not a different build.
+
+![Power parts with pouch and carrier hidden](power-service.png)
+
+![Enlarged fuse and unplugged positive connector](power-details.png)
+
+[Power revision verification](power-validation.json) checks unchanged protected geometry and the new fuse, J_PWR and relocated capacitor against the retained rigid parts. No intersecting rigid packages were detected above 0.03 mm³. This does not certify flexible wire routes: bends, chafe, solder clearance, fuse retention and connector access remain physical checks.
+
+The [seven-page wiring guide](../../output/pdf/spy-car-wiring-guide.pdf) has matching power and service instructions. Current firmware supports home-Wi-Fi browser driving, and a separate `SpyCar-Update` network for updates. Home-Wi-Fi-first OTA with AP fallback remains planned software work.
 
 ## Battery dimension correction
 
@@ -29,7 +47,7 @@ The build measures the actual transformed geometry and rejects a deviation great
 - XT30 mating connector reference, balance connector, removable `J_PWR`, fuse, bulk and bypass capacitors, gated battery-sensing perfboard, two transistors, six resistors, and the separate ADC filter capacitor.
 - Named power, ground and GPIO wire routes. Battery and board endpoints use the modeled terminal coordinates. These are packaging/service-loop references, **not a replacement for the [electrical guide](../../electronics/wiring.md)** or a production harness drawing.
 
-The camera and external charging/transmitter equipment are not mounted on this camera-free car. Existing receiver firmware still uses the separate ESP-NOW transmitter and requires commissioning; this CAD update does not implement a phone controller.
+The camera and external charging/transmitter equipment are not mounted on this camera-free car. The receiver now supports the phone/browser joystick; the separate ESP-NOW handheld is optional. Configure Wi-Fi and commission servo neutral and battery sensing before driving.
 
 ## What is accurate, and what still needs measurement
 
@@ -42,7 +60,7 @@ The camera and external charging/transmitter equipment are not mounted on this c
 | Owned buck | **43 x 21 x 14 mm provisional envelope**, based on a [comparable manufacturer's module](https://wiki.kamamilabs.com/index.php?title=KAmod_LM2596), with component arrangement informed by the user's photograph. Other generic modules differ; no measurement or readable IC marking establishes this exact board size/type. |
 | Servos and horns | Inherited nominal servo geometry; **not measured clones**. The assumed 20 x 5 x 2 mm horn and 7 mm hub require verification. Factory screw dimensions are illustrative; actual horn/spline engagement controls the fit. |
 | Bearings | Nominal MR83ZZ envelope. Shield detail is illustrative; internal rolling-element geometry is not modeled. |
-| Small packages and connectors | Packaging references. The fuse, passive packages, perfboard layout, solder heights and wire bend radii must follow the actual purchased parts. The user's yellow pigtails have not been established as XT30 rather than XT60. |
+| Small packages and connectors | The axial fuse follows the published body/lead dimensions; other packages and connectors are packaging references. The fuse, passive packages, perfboard layout, solder heights and wire bend radii must follow the actual purchased parts. The user's yellow pigtails have not been established as XT30 rather than XT60. |
 
 This is a complete **nominal assembly**, not an exact scan or a claim of physically tested fit. Object properties retain the distinctions rather than presenting decorative detail as measurement evidence.
 
@@ -66,9 +84,10 @@ See the [assembly parts list](parts.csv) alongside the [electrical BOM](../../el
 
 ```sh
 /Applications/Blender.app/Contents/MacOS/Blender --background --python-exit-code 1 --python cad/complete/build.py
+/Applications/Blender.app/Contents/MacOS/Blender --background --python-exit-code 1 --python cad/complete/power_update.py
 ```
 
-Add `-- --skip-renders` to regenerate geometry, STL checks and the Blender file without PNGs. The builder reads the saved revision 0.4 model and does not overwrite it. To use a separate known base without importing local chassis edits, append `--base-model /absolute/path/to/base.blend` after `--`; `validation.json` records its SHA-256. This battery revision used the committed base and preserved the locally edited rolling model. `parameters.json` supplies the new component envelopes and placement; detailed mating features and routing are also design constants in `build.py`. Changing a component requires updating its mount and revalidating, not only changing one dimension.
+`power_update.py` can also run by itself against the existing saved assembly; it preserves mechanical meshes and modifies the power references. Back up local work before any full `build.py` rebuild. Add `-- --skip-renders` to either command to skip PNGs. For the full builder, this regenerates geometry, STL checks and the Blender file without PNGs. The builder reads the saved revision 0.4 model and does not overwrite it. To use a separate known base without importing local chassis edits, append `--base-model /absolute/path/to/base.blend` after `--`; `validation.json` records its SHA-256. This battery revision used the committed base and preserved the locally edited rolling model. `parameters.json` supplies the new component envelopes and placement; detailed mating features and routing are also design constants in `build.py`. Changing a component requires updating its mount and revalidating, not only changing one dimension.
 
 The build checks exported STL topology using the exact serialized float32 coordinates, positive volume, one connected component, winding, degenerate faces and closed edges. Boolean intersection checks cover the new printed mounts, inherited rigid assembly, primary electronic models, factory horn references, and selected rigid accessory packages. Internal decorative layers within one purchased component intentionally overlap and are not a manufacturing representation.
 
