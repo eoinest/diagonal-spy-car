@@ -21,7 +21,7 @@ body { margin: 0; overscroll-behavior: none; }
 .status-dot.ready { background: #333; }
 #status { font-size: 11px; font-weight: 400; color: #888; margin: 0; }
 #battery { margin-left: auto; color: #999; font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.controls { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 36px; padding: 28px 0; }
+.controls { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 28px 0; }
 .joystick {
   position: relative;
   width: min(100%, 280px, 55dvh);
@@ -48,22 +48,6 @@ body { margin: 0; overscroll-behavior: none; }
   transform: translate(var(--knob-x), var(--knob-y));
   pointer-events: none;
 }
-#stop {
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  cursor: pointer;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-#stop span { width: 10px; height: 10px; border-radius: 1px; background: #aaa; }
-#stop:active { background: #f4f4f4; }
-#stop:focus-visible { outline: 1px solid #555; outline-offset: 2px; }
 .sr-only, .status-row:has(.ready) #status {
   position: absolute;
   width: 1px;

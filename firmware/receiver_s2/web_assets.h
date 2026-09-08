@@ -23,7 +23,6 @@ static const char CONTROL_INDEX[] PROGMEM = R"SPYCAR(<!doctype html>
       <div id="joystick" class="joystick" role="group" aria-label="Hold and drag joystick" aria-disabled="true" aria-describedby="drive-hint">
         <div id="knob" class="knob"></div>
       </div>
-      <button id="stop" type="button" aria-label="Stop" title="Stop"><span aria-hidden="true"></span></button>
     </div>
     <div class="sr-only">
       <p id="drive-hint">Hold and drag to drive. Further from the center means faster. Release to stop.</p>
@@ -182,7 +181,6 @@ static const char CONTROL_JS[] PROGMEM = R"SPYCAR(/* Same-host controller. Every
   pad.addEventListener('pointerup', release);
   pad.addEventListener('pointercancel', release);
   pad.addEventListener('lostpointercapture', release);
-  document.getElementById('stop').addEventListener('click', () => cancelGesture(true));
   window.addEventListener('blur', () => cancelGesture(true));
   window.addEventListener('pagehide', () => cancelGesture(true));
   document.addEventListener('visibilitychange', () => { if (document.hidden) cancelGesture(true); });
@@ -214,7 +212,7 @@ body { margin: 0; overscroll-behavior: none; }
 .status-dot.ready { background: #333; }
 #status { font-size: 11px; font-weight: 400; color: #888; margin: 0; }
 #battery { margin-left: auto; color: #999; font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.controls { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 36px; padding: 28px 0; }
+.controls { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 28px 0; }
 .joystick {
   position: relative;
   width: min(100%, 280px, 55dvh);
@@ -241,22 +239,6 @@ body { margin: 0; overscroll-behavior: none; }
   transform: translate(var(--knob-x), var(--knob-y));
   pointer-events: none;
 }
-#stop {
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  cursor: pointer;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-#stop span { width: 10px; height: 10px; border-radius: 1px; background: #aaa; }
-#stop:active { background: #f4f4f4; }
-#stop:focus-visible { outline: 1px solid #555; outline-offset: 2px; }
 .sr-only, .status-row:has(.ready) #status {
   position: absolute;
   width: 1px;

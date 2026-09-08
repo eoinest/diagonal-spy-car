@@ -19,7 +19,7 @@ The standalone AP shares its password with the separate update AP. Existing-netw
 
 ### Driving
 
-Hold the joystick and drag. The page first exchanges centered commands to arm, then follows the held gesture. Release to stop; pressing **Stop**, leaving the page or losing the connection also cancels the gesture. Reconnecting never resumes a previous drag. Only one browser can own control at a time; close its tab before switching phones. A vanished controller can be replaced after two seconds without accepted commands.
+Hold the joystick and drag. The page first exchanges centered commands to arm, then follows the held gesture. Release to stop; leaving the page or losing the connection also cancels the gesture. Reconnecting never resumes a previous drag. Only one browser can own control at a time; close its tab before switching phones. A vanished controller can be replaced after two seconds without accepted commands.
 
 | Joystick direction | Left powered wheel | Right powered wheel |
 | --- | --- | --- |
@@ -37,7 +37,7 @@ The browser exchanges commands about every 50 ms with only one normal command aw
 
 Start with servo power disconnected. Set up the network and confirm the page opens. Copy receiver `config.h` to `config.private.h`; perform the servo-neutral and battery calibration in commissioning steps **4–6** below. The browser shows the missing calibration and stays disabled until both are confirmed. The existing gated battery-sense circuit is still required by this firmware; this change does not replace it with manual multimeter checks.
 
-Upload the configured receiver, raise the wheels, and verify forward/reverse, both spins, gradual speed changes and immediate neutral on release. Check Stop, a hidden tab, phone Wi-Fi loss, reconnection requiring a fresh gesture, a second browser, and low-battery inhibition. Finally make a slow floor test. The diagonal wheel arrangement still needs sideways tire scrub to turn.
+Upload the configured receiver, raise the wheels, and verify forward/reverse, both spins, gradual speed changes and immediate neutral on release. Check a hidden tab, phone Wi-Fi loss, reconnection requiring a fresh gesture, a second browser, and low-battery inhibition. Finally make a slow floor test. The diagonal wheel arrangement still needs sideways tire scrub to turn.
 
 Software verification includes host protocol/gate tests, 15 browser-controller unit cases, phone and desktop layout checks, simulated WebSocket pointer interactions, and an Arduino-ESP32 3.3.11 compile. **The actual ESP32 HTTP/WebSocket service, phone networking and physical servo stopping remain untested on hardware.**
 

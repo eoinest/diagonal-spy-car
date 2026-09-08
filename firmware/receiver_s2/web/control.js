@@ -146,7 +146,6 @@
   pad.addEventListener('pointerup', release);
   pad.addEventListener('pointercancel', release);
   pad.addEventListener('lostpointercapture', release);
-  document.getElementById('stop').addEventListener('click', () => cancelGesture(true));
   window.addEventListener('blur', () => cancelGesture(true));
   window.addEventListener('pagehide', () => cancelGesture(true));
   document.addEventListener('visibilitychange', () => { if (document.hidden) cancelGesture(true); });

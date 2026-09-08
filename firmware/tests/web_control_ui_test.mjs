@@ -118,12 +118,12 @@ test('server reset cancels gesture without recursively sending stop', () => {
   assert.equal(s.sent.filter(x => x === 'stop').length, stops);
   assert.equal(s.sent.at(-1), '42,0,0,0');
 });
-for (const kind of ['pointercancel', 'lostpointercapture', 'blur', 'hidden', 'stop']) {
+for (const kind of ['pointercancel', 'lostpointercapture', 'blur', 'hidden', 'pagehide']) {
   test(`${kind} cancels motion immediately`, () => {
     const f = fixture(), s = f.armed();
     if (kind === 'blur') f.window.emit('blur');
     else if (kind === 'hidden') { f.document.hidden = true; f.document.emit('visibilitychange'); }
-    else if (kind === 'stop') f.elements.get('stop').emit('click');
+    else if (kind === 'pagehide') f.window.emit('pagehide');
     else f.point(kind);
     assert.equal(s.sent.at(-1), 'stop');
     assert.equal(f.elements.get('drive-state').textContent, 'Stopped');
@@ -137,7 +137,7 @@ test('stale acknowledgement disconnects and reconnect never resumes hold', () =>
   assert.equal(f.elements.get('drive-state').textContent, 'Stopped');
 });
 test('unacknowledged stop also times out', () => {
-  const f = fixture(), s = f.online(); f.elements.get('stop').emit('click');
+  const f = fixture(), s = f.online(); f.point('pointerdown'); f.point('pointerup');
   f.advance(181); assert.equal(s.readyState, 3);
 });
 test('late ACK cannot evade watchdog after a suspended event loop', () => {
