@@ -1,5 +1,5 @@
 {
-  "revision": "0.5-complete-nominal-assembly",
+  "revision": "0.5.1-battery-envelope-audit",
   "units": "mm",
   "base_model": "../rolling/rolling-chassis.blend",
   "deck": {

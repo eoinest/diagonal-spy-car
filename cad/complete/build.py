@@ -3,7 +3,7 @@
 blender --background --python-exit-code 1 --python cad/complete/build.py
 Use -- --skip-renders for mesh/fit validation and .blend output only.
 """
-import bpy, bmesh, json, math, struct, sys
+import bpy, bmesh, json, math, struct, sys, hashlib
 from pathlib import Path
 from mathutils import Vector, Matrix
 
@@ -13,7 +13,12 @@ P=json.loads((OUT/'parameters.json').read_text())
 sys.path.insert(0,str(OUT));sys.path.insert(0,str(OUT.parent/'rolling'))
 from mesh_checks import validate_stl
 from electronics_models import build as build_electronics
-bpy.ops.wm.open_mainfile(filepath=str((OUT/P['base_model']).resolve()))
+from battery_views import build as build_battery_views
+base_path=(OUT/P['base_model']).resolve()
+if '--base-model' in sys.argv:
+    base_path=Path(sys.argv[sys.argv.index('--base-model')+1]).resolve()
+base_sha256=hashlib.sha256(base_path.read_bytes()).hexdigest()
+bpy.ops.wm.open_mainfile(filepath=str(base_path))
 scene=bpy.context.scene;scene.name='01 ASSEMBLED'
 for o in list(bpy.data.objects):
     if o.type in ('FONT','CAMERA','LIGHT') or o.name=='Studio floor' or 'CONTEXT ONLY' in o.name or 'UNDESIGNED' in o.name or 'fit coupon' in o.name.lower():
@@ -282,6 +287,7 @@ def export(o,filename,axis=None):
     bpy.data.meshes.remove(mesh);result=validate_stl(path);result['file']=filename;return result
 prints=[(deck,'electronics-deck.stl',None),(bands[0],'battery-band-tpu.stl','X'),(drive_prints[0],'powered-wheel-left.stl','X'),(drive_prints[1],'powered-wheel-right.stl','X')]
 report={'revision':P['revision'],'units':'mm','scope':'Nominal rigid-part fit. No insertion, strength, thermal or routed-wire collision validation.'}
+report['base_model_sha256']=base_sha256
 report['stl']=[export(*x) for x in prints]
 assert all(x['valid'] for x in report['stl']),report['stl']
 bpy.context.view_layer.update()
@@ -306,6 +312,22 @@ for a in rigid_aux:
         if vol>.03:collisions.append({'a':a.name,'b':b.name,'volume_mm3':round(vol,4)})
 report['rigid_mount_collisions']=collisions
 report['nominal_clearances_mm']={'deck_to_wheel_top':1.5,'underhook_to_base_bottom':.2,'pcb_to_deck_top':2.0,'band_bottom_to_wheel_top':.5}
+# Measure the finished battery geometry in world coordinates, excluding foam,
+# external leads and connectors. Check full-size placement and holder clearance.
+pack=[o for o in groups['battery'] if o.name.startswith('Battery •')]
+pack_lo=[min(bounds(o)[0][i] for o in pack) for i in range(3)]
+pack_hi=[max(bounds(o)[1][i] for o in pack) for i in range(3)]
+pack_size=[pack_hi[i]-pack_lo[i] for i in range(3)]
+expected=[P['battery'][k] for k in ('length','width','height')]
+assert all(abs(a-b)<.01 for a,b in zip(pack_size,expected)),(pack_size,expected)
+report['battery_geometry']={'finished_pack_xyz_mm':pack_size,'expected_xyz_mm':expected,
+    'min':pack_lo,'max':pack_hi,'tolerance_mm':.01,
+    'source':'https://www.lumenier.com/products/lumenier-300mah-2s-75c-lipo-battery-xt-30',
+    'excludes':'Foam, leads and connectors; nominal supplier size, not physical metrology',
+    'foam_top_gap_mm':pack_lo[2]-bounds(foam)[1][2],
+    'band_inner_top_gap_mm':41.2-pack_hi[2],
+    'band_side_gap_per_side_mm':(19-pack_size[1])/2,
+    'end_stop_gap_per_side_mm':(48.8-pack_size[0])/2}
 report['terminals']=terminals
 report['unverified']=['Owned buck dimensions and IC','Servo geometry and supplied horn','Clip insertion and fatigue','PCB underside parts and solder clearance','Friction retention of PCB rails and bearing fits','Wire service loops and small-package part selection']
 report['component_inventory']={k:len(v) for k,v in groups.items()}
@@ -321,7 +343,7 @@ for old in list(scene.world.node_tree.nodes) if scene.world and scene.world.use_
 scene.world.color=(.22,.22,.22)
 def camera(n,loc,target,scale):
     data=bpy.data.cameras.new(n);o=bpy.data.objects.new(n,data);COL['STUDIO'].objects.link(o);o.location=loc;o.rotation_euler=(Vector(target)-o.location).to_track_quat('-Z','Y').to_euler();data.type='ORTHO';data.ortho_scale=scale;return o
-hero=camera('Camera - assembly',(-115,-150,135),(0,0,20),128)
+hero=camera('Camera - assembly',(-70,-165,150),(0,0,20),128)
 top=camera('Camera - plan',(0,0,190),(0,0,0),105)
 sidecam=camera('Camera - side',(-180,0,36),(0,0,20),112)
 for n,loc,power,size in [('Key',(-70,-90,150),260000,95),('Fill',(90,-10,100),150000,80),('Rim',(0,110,110),220000,70)]:
@@ -346,10 +368,13 @@ for o in exploded.objects:
         o.location+=Vector(off)
     if g=='harness' and o.type=='CURVE':o.hide_render=True;o.hide_set(True)
 exploded.camera.data.ortho_scale=210;exploded.camera.location=(-150,-185,185);exploded.camera.rotation_euler=(Vector((0,0,52))-exploded.camera.location).to_track_quat('-Z','Y').to_euler()
+battery_scene,battery_camera=build_battery_views(scene)
 bpy.context.window.scene=scene
 bpy.ops.wm.save_as_mainfile(filepath=str(OUT/'complete-spy-car.blend'),compress=True)
 if '--skip-renders' not in sys.argv:
     for cam,file in [(hero,'assembly.png'),(top,'top.png'),(sidecam,'side.png')]:
         scene.camera=cam;scene.render.filepath=str(OUT/file);bpy.ops.render.render(write_still=True)
     bpy.context.window.scene=exploded;exploded.render.filepath=str(OUT/'exploded.png');bpy.ops.render.render(write_still=True)
+    bpy.context.window.scene=battery_scene;battery_scene.render.filepath=str(OUT/'battery-dimensions.png');bpy.ops.render.render(write_still=True)
+    bpy.context.window.scene=scene;scene.camera=hero
 print('COMPLETE_BUILD_OK',json.dumps(report))

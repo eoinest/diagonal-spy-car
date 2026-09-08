@@ -12,7 +12,7 @@ WEMOS = 'https://docs.wemos.cc/en/latest/s2/s2_mini.html'
 WEMOS_DIM = 'https://docs.wemos.cc/en/latest/_static/files/dim_s2_mini_v1.0.0.pdf'
 ESP_PACKAGE = 'https://documentation.espressif.com/esp32-s2_datasheet_en.pdf#page=58'
 KICAD = 'https://gitlab.com/kicad/libraries/kicad-footprints/-/merge_requests/2904'
-BATTERY_SOURCE = 'https://www.racedayquads.com/products/lumenier-300mah-2s-75c-lipo-battery-xt-30'
+BATTERY_SOURCE = 'https://www.lumenier.com/products/lumenier-300mah-2s-75c-lipo-battery-xt-30'
 BUCK_SOURCE = 'User photograph: electronics/guide-assets/owned-buck.jpg; board size and feature dimensions provisional'
 
 
@@ -179,22 +179,36 @@ def build(P):
         box('Battery • internal cell %d envelope' % n, (bx, by, bz+offset),
             (bw-.8, bl-3, cell_h), 'battery', 'cell', .5,
             'Illustrative two-cell stack within total pack envelope; no internal construction metrology')
-    wrap = box('Battery • Lumenier 300 mAh 2S wrap', (bx, by, bz), (bw, bl, bh-.16),
-               'battery', 'wrap', .7, 'Published 48×17×12 mm pack envelope; wrap/seams illustrative')
-    inner = box('temporary wrap cavity', (bx, by, bz), (bw-.35, bl-.5, bh-.5),
-                'battery', None, .5, track=False)
+    # Keep the finished wrap AND label within the published 12 mm thickness.
+    # The previous wrap was 11.84 mm tall. Its saved dimensions were audited,
+    # rather than inferring a replacement scale from a perspective product photo.
+    wrap = box('Battery • Lumenier 300 mAh 2S wrap', (bx, by, bz-.02), (bw, bl, bh-.04),
+               'battery', 'wrap', 1.05,
+               'Published 48×17×12 mm finished pack envelope including label; rounded wrap silhouette is photo-derived')
+    inner = box('temporary wrap cavity', (bx, by, bz-.02), (bw-.35, bl-.5, bh-.5),
+                'battery', None, .85, track=False)
     subtract(wrap, inner)
+    # Thin folds on the short ends stay within the overall envelope.
     for side in (-1, 1):
-        box('Battery • sealed end seam', (bx, by+side*(bl/2-.45), bz),
-            (bw-.5, .55, bh-.5), 'battery', 'wrap', .12)
-    label_z = bz+bh/2-.045
-    box('Battery • printed label backing', (bx, by+.2, label_z), (bw-1.7, bl-6, .045), 'battery', 'label', .015)
-    box('Battery • cyan capacity field', (bx, by+bl*.19, label_z+.03), (bw-2.5, bl*.26, .014), 'battery', 'cyan')
-    text('Battery • capacity marking', '300', (bx, by+bl*.19, label_z+.04), 5.0, 'battery')
-    text('Battery • capacity units', 'mAh', (bx, by+bl*.065, label_z+.04), 1.5, 'battery')
-    text('Battery • brand marking', 'Lumenier', (bx, by-bl*.085, label_z+.04), 2.5, 'battery')
-    text('Battery • chemistry marking', '2S  7.4V', (bx, by-bl*.21, label_z+.04), 1.8, 'battery')
-    text('Battery • chemistry marking small', 'LiPo  /  XT30', (bx, by-bl*.29, label_z+.04), 1.3, 'battery')
+        box('Battery • folded wrap end', (bx, by+side*(bl/2-.22), bz-.3),
+            (bw-2.2, .25, bh-2.5), 'battery', 'wrap', .1)
+    top = bz+bh/2
+    box('Battery • printed label backing', (bx, by, top-.014),
+        (bw-1.7, bl-6, .012), 'battery', 'label', .005)
+    # Artwork reads along the 48 mm axis in the reference photograph. These
+    # geometric markings reproduce layout, not an exact licensed artwork scan.
+    box('Battery • cyan capacity field', (bx-3.2, by-12, top-.006),
+        (7.4, 14, .004), 'battery', 'cyan')
+    def battery_text(name, value, u, v, size):
+        return text('Battery • '+name, value, (bx-v, by+u, top-.001),
+                    size, 'battery', angle=math.pi/2)
+    battery_text('capacity marking', '300', -12, 3.7, 4.1)
+    battery_text('capacity units', 'mAh', -12, .8, 1.25)
+    brand = battery_text('brand marking', 'Lumenier', 0, -3.8, 4.0)
+    brand.data.shear = .15
+    battery_text('voltage marking', '2 CELL  7.4V', 10, 5.3, 1.15)
+    battery_text('discharge marking', '75C', 10, 2.1, 2.6)
+    battery_text('series marking', 'LX', -17, -5.7, 1.5)
     terminals = {'battery': {
         'positive': [bx+2.2, by-bl/2, bz+1.0],
         'negative': [bx-2.2, by-bl/2, bz+1.0],

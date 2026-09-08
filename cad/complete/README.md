@@ -1,10 +1,22 @@
-# Complete camera-free assembly - revision 0.5
+# Complete camera-free assembly - revision 0.5.1
 
-Open **[complete-spy-car.blend](complete-spy-car.blend)**. It contains `01 ASSEMBLED` and `02 EXPLODED` scenes, named component collections, millimetre units, and source/confidence properties on the new electronics objects. The exploded scene hides loose wire curves to expose the parts.
+Open **[complete-spy-car.blend](complete-spy-car.blend)**. It contains `01 ASSEMBLED`, `02 EXPLODED`, and `03 BATTERY DIMENSIONS` scenes, named component collections, millimetre units, and source/confidence properties on the new electronics objects. The exploded scene hides loose wire curves to expose the parts.
 
 ![Assembled car](assembly.png)
 
 The battery, buck and S2 sit in one layer on a **52 x 76 mm removable printed deck**. This is slightly wider and longer than the wheel-only revision, but avoids stacking the buck above the S2. The main platform underside is 25 mm above the model origin, giving **1.5 mm nominal clearance above the 30 mm wheels**. Inspect [validation.json](validation.json) for the actual assembled bounds, including reference connectors and routed wires.
+
+## Battery dimension correction
+
+![Battery in true orthographic views](battery-dimensions.png)
+
+The selected pack is the **Lumenier 300 mAh 2S XT30, SKU 10188**. Its manufacturer lists **48 mm long × 17 mm wide × 12 mm high**. In the assembled car these are X × Y × Z: the 48 mm length runs across the deck. This is the same pack photographed in the wiring guide; the guide photo is not a scale drawing.
+
+An audit of the previous saved model found a **48 × 17 × 11.84 mm wrap** with a thin label above it. Length and width were already correct. Revision 0.5.1 brings the finished wrap and label to **48 × 17 × 12 mm**, rounds the wrap more softly, and turns the label artwork along the long axis as shown in the product photo. The dimensions scene uses copies of the actual battery geometry at identical scale, without the straps and plugs obscuring its top. Artwork, folds and lead exits remain photo-derived approximations.
+
+The corrected finished pack sits at **Z 28–40 mm**, directly above the 0.8 mm pad. The existing carrier accommodates it: nominal clearance is **0.4 mm at each end stop**, **1 mm per side inside each band**, and **1.2 mm above the pack inside the band**. The printed carrier and bands therefore do not need resizing. These are CAD clearances, not a validated elastic grip or supplier tolerance allowance. Measure the purchased pack before final fit.
+
+The build measures the actual transformed geometry and rejects a deviation greater than **0.01 mm** from the nominal envelope; this computational threshold is not a manufacturing tolerance. Dimensions exclude leads, connectors and padding. Sources: [manufacturer specifications and product photos](https://www.lumenier.com/products/lumenier-300mah-2s-75c-lipo-battery-xt-30), [wiring guide](../../output/pdf/spy-car-wiring-guide.pdf). No published dimensioned manufacturing drawing or measured physical pack is available, so a perfect replica cannot yet be established.
 
 ## Included in the model
 
@@ -54,7 +66,7 @@ See the [assembly parts list](parts.csv) alongside the [electrical BOM](../../el
 /Applications/Blender.app/Contents/MacOS/Blender --background --python-exit-code 1 --python cad/complete/build.py
 ```
 
-Add `-- --skip-renders` to regenerate geometry, STL checks and the Blender file without PNGs. The builder reads the saved revision 0.4 model and does not overwrite it. `parameters.json` supplies the new component envelopes and placement; detailed mating features and routing are also design constants in `build.py`. Changing a component requires updating its mount and revalidating, not only changing one dimension.
+Add `-- --skip-renders` to regenerate geometry, STL checks and the Blender file without PNGs. The builder reads the saved revision 0.4 model and does not overwrite it. To use a separate known base without importing local chassis edits, append `--base-model /absolute/path/to/base.blend` after `--`; `validation.json` records its SHA-256. This battery revision used the committed base and preserved the locally edited rolling model. `parameters.json` supplies the new component envelopes and placement; detailed mating features and routing are also design constants in `build.py`. Changing a component requires updating its mount and revalidating, not only changing one dimension.
 
 The build checks exported STL topology using the exact serialized float32 coordinates, positive volume, one connected component, winding, degenerate faces and closed edges. Boolean intersection checks cover the new printed mounts, inherited rigid assembly, primary electronic models, factory horn references, and selected rigid accessory packages. Internal decorative layers within one purchased component intentionally overlap and are not a manufacturing representation.
 

@@ -1,7 +1,8 @@
 {
-  "revision": "0.5-complete-nominal-assembly",
+  "revision": "0.5.1-battery-envelope-audit",
   "units": "mm",
   "scope": "Nominal rigid-part fit. No insertion, strength, thermal or routed-wire collision validation.",
+  "base_model_sha256": "6ba1bfaf8789c2211182ce0f3f4bd6aa12e54c33657125ec088ec2949bdb4b1d",
   "stl": [
     {
       "file": "electronics-deck.stl",
@@ -247,6 +248,35 @@
     "pcb_to_deck_top": 2.0,
     "band_bottom_to_wheel_top": 0.5
   },
+  "battery_geometry": {
+    "finished_pack_xyz_mm": [
+      48.0,
+      17.000003814697266,
+      12.0
+    ],
+    "expected_xyz_mm": [
+      48,
+      17,
+      12
+    ],
+    "min": [
+      -24.0,
+      -11.000001907348633,
+      28.0
+    ],
+    "max": [
+      24.0,
+      6.000001907348633,
+      40.0
+    ],
+    "tolerance_mm": 0.01,
+    "source": "https://www.lumenier.com/products/lumenier-300mah-2s-75c-lipo-battery-xt-30",
+    "excludes": "Foam, leads and connectors; nominal supplier size, not physical metrology",
+    "foam_top_gap_mm": 0.0,
+    "band_inner_top_gap_mm": 1.2000000000000028,
+    "band_side_gap_per_side_mm": 0.9999980926513672,
+    "end_stop_gap_per_side_mm": 0.3999999999999986
+  },
   "terminals": {
     "battery": {
       "positive": [
@@ -340,7 +370,7 @@
     "drive_left": 4,
     "drive_right": 4,
     "harness": 80,
-    "battery": 13,
+    "battery": 14,
     "buck": 53,
     "s2": 217
   },
