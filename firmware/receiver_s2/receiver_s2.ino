@@ -7,6 +7,8 @@
 #include <freertos/queue.h>
 #include <atomic>
 #include <SpyCarProtocol.h>
+#include "maintenance_gate.h"
+#include "ota_service.h"
 #if __has_include("config.private.h")
 #include "config.private.h"
 #else
@@ -25,6 +27,9 @@ QueueHandle_t receiveQueue;
 std::atomic<bool> receiveOverflow{false};
 spycar::DriveGate drive;
 bool radioReady = false;
+std::atomic<bool> maintenanceActive{false};
+spycar::MaintenanceGate maintenance;
+CarUpdater updater;
 bool pwmReady = false;
 bool outputFault = false;
 bool batteryLatched = false;
@@ -42,7 +47,7 @@ bool keyPresent(const uint8_t *key) {
 }
 
 void onReceive(const esp_now_recv_info_t *info, const uint8_t *data, int length) {
-  if (!info || length != sizeof(spycar::Packet) ||
+  if (maintenanceActive || !info || length != sizeof(spycar::Packet) ||
       memcmp(info->src_addr, TRANSMITTER_MAC, 6) != 0) return;
   Received received;
   memcpy(&received.packet, data, sizeof(received.packet));
@@ -94,7 +99,48 @@ void updateBattery(uint32_t now) {
   }
 }
 
+bool otaPowerOkay() {
+  // Until ADC commissioning, the operator must check both cells with a meter.
+  if (!BATTERY_CALIBRATION_CONFIRMED) return true;
+  digitalWrite(BATTERY_SENSE_ENABLE_PIN, HIGH);
+  delay(20);
+  updateBattery(millis());
+  digitalWrite(BATTERY_SENSE_ENABLE_PIN, LOW);
+  return batteryValid && !batteryLatched && batteryVoltage >= 7.4f;
+}
+
+void attachNeutral() {
+  if (!SERVO_CALIBRATION_CONFIRMED) return;
+  const bool leftOk = ledcAttach(LEFT_SERVO_PIN, 50, 14);
+  const bool rightOk = ledcAttach(RIGHT_SERVO_PIN, 50, 14);
+  pwmReady = leftOk && rightOk;
+  if (!pwmReady) {
+    outputFault = true;
+    ledcDetach(LEFT_SERVO_PIN);
+    ledcDetach(RIGHT_SERVO_PIN);
+    pinMode(LEFT_SERVO_PIN, OUTPUT);
+    pinMode(RIGHT_SERVO_PIN, OUTPUT);
+    digitalWrite(LEFT_SERVO_PIN, LOW);
+    digitalWrite(RIGHT_SERVO_PIN, LOW);
+  }
+  stopNow();
+}
+
+void enterMaintenance() {
+  maintenanceActive = true;
+  drive.inhibit(true);
+  stopNow();
+  digitalWrite(BATTERY_SENSE_ENABLE_PIN, LOW);
+  esp_now_unregister_recv_cb();
+  esp_now_deinit();
+  radioReady = false;
+  if (receiveQueue) xQueueReset(receiveQueue);
+  receiveOverflow = false;
+  updater.begin();
+}
+
 void setup() {
+  pinMode(OTA_BUTTON_PIN, INPUT_PULLUP);
   pinMode(BATTERY_SENSE_ENABLE_PIN, OUTPUT);
   digitalWrite(BATTERY_SENSE_ENABLE_PIN, LOW);
   pinMode(LEFT_SERVO_PIN, OUTPUT);
@@ -107,6 +153,8 @@ void setup() {
 #endif
   analogReadResolution(12);
   analogSetPinAttenuation(BATTERY_ADC_PIN, ADC_11db);
+  // Known neutral must not depend on successful radio pairing.
+  attachNeutral();
   receiveQueue = xQueueCreate(8, sizeof(Received));
   WiFi.mode(WIFI_STA);
   WiFi.setSleep(false);
@@ -127,21 +175,6 @@ void setup() {
   if (esp_now_add_peer(&peer) != ESP_OK ||
       esp_now_register_recv_cb(onReceive) != ESP_OK) return;
   radioReady = true;
-  if (SERVO_CALIBRATION_CONFIRMED && BATTERY_CALIBRATION_CONFIRMED) {
-    const bool leftOk = ledcAttach(LEFT_SERVO_PIN, 50, 14);
-    const bool rightOk = ledcAttach(RIGHT_SERVO_PIN, 50, 14);
-    pwmReady = leftOk && rightOk;
-    if (!pwmReady) {
-      outputFault = true;
-      ledcDetach(LEFT_SERVO_PIN);
-      ledcDetach(RIGHT_SERVO_PIN);
-      pinMode(LEFT_SERVO_PIN, OUTPUT);
-      pinMode(RIGHT_SERVO_PIN, OUTPUT);
-      digitalWrite(LEFT_SERVO_PIN, LOW);
-      digitalWrite(RIGHT_SERVO_PIN, LOW);
-    }
-    stopNow();
-  }
 }
 
 void loop() {
@@ -149,6 +182,16 @@ void loop() {
   static uint32_t lastBattery = 0, lastServo = 0, lastStatus = 0;
   static bool batterySampling = false;
   static uint32_t batteryEnabledAt = 0;
+  if (maintenance.update(digitalRead(OTA_BUTTON_PIN) == LOW, now)) {
+    enterMaintenance();
+    batterySampling = false;
+  }
+  if (maintenance.active) {
+    stopNow(); // Hardware PWM holds calibrated neutral during HTTP/flash work.
+    updater.tick();
+    delay(1);
+    return; // No drive processing, including after update failures/timeouts.
+  }
   if (outputFault) {
     digitalWrite(BATTERY_SENSE_ENABLE_PIN, LOW);
     batterySampling = false;
@@ -165,7 +208,8 @@ void loop() {
     batterySampling = false;
   }
   // A low reading immediately disarms; 1s continuous low latches until reboot.
-  drive.inhibit(!radioReady || !pwmReady || !batteryValid || batteryLatched);
+  drive.inhibit(maintenance.inhibit || !radioReady || !pwmReady ||
+                !BATTERY_CALIBRATION_CONFIRMED || !batteryValid || batteryLatched);
   drive.tick(now);
   const bool queueFault = receiveOverflow.exchange(false);
   if (queueFault) {

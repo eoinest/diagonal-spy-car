@@ -12,7 +12,9 @@ Get the [new printed parts and assembly instructions](cad/complete/README.md), [
 
 ## Picture wiring guide and current electronics
 
-Use the [five-page illustrated wiring PDF](output/pdf/spy-car-wiring-guide.pdf), [step-by-step wiring notes](electronics/wiring.md), and [camera-free electronics BOM](electronics/camera-free-bom.csv). This revision selects the owned large LM2596-style buck at 5.00 V and a Lumenier 300 mAh 2S XT30 battery (48 x 17 x 12 mm). Converter identity and loaded performance still need confirmation; neither owned board supplies LiPo charging or cutoff. The guide includes exact S2 pad callouts, battery sensing, USB isolation and connector matching.
+Use the [six-page illustrated wiring PDF](output/pdf/spy-car-wiring-guide.pdf), [step-by-step wiring notes](electronics/wiring.md), and [camera-free electronics BOM](electronics/camera-free-bom.csv). This revision selects the owned large LM2596-style buck at 5.00 V and a Lumenier 300 mAh 2S XT30 battery (48 x 17 x 12 mm). Converter identity and loaded performance still need confirmation; neither owned board supplies LiPo charging or cutoff. The guide includes exact S2 pad callouts, battery sensing, USB isolation and connector matching.
+
+**Routine firmware updates use Espressif's bundled HTTPUpdateServer:** after one USB installation and private password setup, hold the S2 Mini's BOOT/0 button for three seconds after normal startup, join `SpyCar-Update`, and upload the receiver application at `http://192.168.4.1/update`. Driving stays locked during updates. No extra power switch or onboard hardware is needed; USB remains for initial setup and recovery. Read the [wireless update instructions and bench verification limits](firmware/README.md#wireless-receiver-updates). This feature is software-tested, not yet verified on the physical car.
 
 ## Current work: integral printed axles and press-fit wheels
 

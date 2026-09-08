@@ -1,6 +1,6 @@
 # Firmware: ESP-NOW drive control
 
-Original MIT-licensed prototype firmware for an ESP32-S2 mini car and a separate original ESP32 DevKit handheld controller. The FPV camera transmits separately; this firmware does not stream video or connect to a phone app. Arduino-ESP32 **3.x** is required; the LEDC API differs from 2.x. No code from the inspiration repository was copied.
+Original MIT-licensed prototype firmware for an ESP32-S2 mini car and a separate original ESP32 DevKit handheld controller. The current car has no camera. Driving uses ESP-NOW; a separate parked Wi-Fi mode provides browser firmware updates. Arduino-ESP32 **3.x** is required; the LEDC API differs from 2.x. No code from the inspiration repository was copied.
 
 The checked-in configuration cannot arm. Pairing keys, actual MAC addresses, joystick calibration, servo neutral, and battery ADC calibration must be configured first. Firmware compilation and host tests do not validate wiring, servo behavior, RF performance, or battery protection on real hardware.
 
@@ -25,7 +25,7 @@ Install Arduino CLI and the Espressif board package using its [official instruct
 ```sh
 arduino-cli core update-index --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
 arduino-cli core install esp32:esp32@3.3.11 --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
-arduino-cli compile --fqbn esp32:esp32:lolin_s2_mini --libraries firmware/libraries firmware/receiver_s2
+arduino-cli compile --fqbn esp32:esp32:lolin_s2_mini:PartitionScheme=default --libraries firmware/libraries --output-dir firmware/build/receiver_s2 firmware/receiver_s2
 arduino-cli compile --fqbn esp32:esp32:esp32 --libraries firmware/libraries firmware/transmitter_esp32
 arduino-cli compile --fqbn esp32:esp32:lolin_s2_mini firmware/servo_neutral_s2
 ```
@@ -41,6 +41,40 @@ arduino-cli monitor --port YOUR_PORT --config baudrate=115200
 ```
 
 Do not connect computer USB power and the vehicle's external 5 V rail simultaneously without the isolation described in the wiring document. Do not use a placeholder port literally.
+
+## Wireless receiver updates
+
+This uses **Espressif's bundled `HTTPUpdateServer` and `Update` libraries**, pinned with Arduino-ESP32 3.3.11. They supply the browser page, authentication, upload handling, flash writing and reboot. There is no custom upload protocol, storage implementation or web UI. Our wrapper starts the password-protected AP only in latched maintenance mode. `ArduinoOTA`, also bundled, is an alternative for IDE/command-line network uploads; it is not enabled here.
+
+No new switch, programmer, router, or custom PCB is needed. USB remains necessary for initial installation and recovery. The handheld transmitter is unchanged and still uses USB programming.
+
+### One-time setup
+
+1. Copy `firmware/receiver_s2/ota_config.h` to `ota.private.h` alongside it. Set `OTA_PASSWORD` to a unique random **12–63 character printable ASCII password without spaces**. This ignored file must never be published. The password protects both the Wi-Fi network and browser login; browser username: `admin`. The empty checked-in password disables the network.
+2. Keep your existing `config.private.h` containing pairing keys and calibration. Both private files must accompany **every future build**. Settings are currently compiled into the application, not saved separately in NVS.
+3. Build with the command above and upload over isolated USB using the existing wiring procedure. Keep **Default 4 MB with SPIFFS** (`PartitionScheme=default`): it contains two 1,310,720-byte application slots. Huge APP and No OTA schemes cannot support this workflow. Changing the partition layout later requires USB.
+
+### Each wireless update
+
+1. Build the receiver with those same private files and partition scheme. The upload file is **`firmware/build/receiver_s2/receiver_s2.ino.bin`**. Do not select a merged image, bootloader, partition table, transmitter, or servo calibration sketch.
+2. Leave USB unplugged and power the car normally from its LiPo and buck. Raise the wheels and release the transmitter deadman. Check **both cells** with the meter and start with a charged, balanced pack. During initial setup, servos with unknown neutral must have their power disconnected.
+3. Boot normally with **BOOT/0 released**, then hold that existing button for **three seconds**. Do not hold it while switching on or pressing RESET: that enters the ROM bootloader. A short press already disarms; the long press locks maintenance mode until restart.
+4. Join **`SpyCar-Update`** on your laptop with your private password. Stay connected when warned there is no internet. Open **http://192.168.4.1/update**, log in as `admin`, choose `receiver_s2.ino.bin` in the **Firmware** section, and select **Update Firmware**. Leave the library page's **FileSystem** section alone; the car does not use filesystem updates.
+5. Keep power connected until success and restart. The update network disappears; driving starts disarmed and requires the normal fresh deadman sequence. Failed uploads stay parked and can be retried while the network remains available.
+
+The network has a five-minute window from entry. The library handles uploads synchronously, so an active or stalled request can extend that window. Timeout leaves driving locked and **does not disconnect battery power**. Restart to reopen the network; unplug the battery after use.
+
+### Behavior and verification limits
+
+Maintenance blocks incoming commands, stops ESP-NOW, and sets hardware PWM to calibrated neutral before starting the server. The bundled HTTPUpdateServer checks credentials and browser Origin before accepting an upload; Update writes to an inactive application slot and selects it on successful completion. We rely on these standard library behaviors and do not duplicate their parser or storage logic. Their checks cannot determine whether the selected application is the correct car program or free of bugs. Automatic rollback and signed firmware are not configured. Keep USB physically accessible for recovery.
+
+With confirmed ADC calibration, opening update mode requires a valid reading of at least **7.4 V total pack voltage**. This is an entry check only: voltage is not monitored during the library's blocking upload. **Without confirmed ADC calibration there is no automatic update voltage check**; use the meter. Neither path monitors individual cells or disconnects power. Normal drive firmware still requires the existing calibrated sensing circuit; OTA does not remove it.
+
+Calibrated servos can remain connected for routine OTA, but neutral is a command, not electrical isolation. PWM is interrupted during reboot. Verify the owned servos' behavior with wheels raised. The page uses HTTP within the password-protected local AP, not HTTPS; anyone given the password can replace the firmware.
+
+Bench acceptance: verify button entry, neutral during uploading and reboot, wrong-password rejection, two successive successful updates, interrupted/wrong-file uploads, timeout remaining parked, and fresh arming after restart. Host tests and compilation do not establish these physical outcomes.
+
+References: [Espressif HTTPUpdateServer](https://github.com/espressif/arduino-esp32/tree/3.3.11/libraries/HTTPUpdateServer), [Update](https://github.com/espressif/arduino-esp32/tree/3.3.11/libraries/Update), [ArduinoOTA alternative](https://github.com/espressif/arduino-esp32/tree/3.3.11/libraries/ArduinoOTA), [WEMOS schematic](https://docs.wemos.cc/en/latest/_static/files/sch_s2_mini_v1.0.0.pdf).
 
 ## Commissioning
 
@@ -77,8 +111,10 @@ The diagonal wheel geometry remains mechanically prone to scrub; electronic mixi
 ```sh
 TMPDIR=/private/tmp c++ -std=c++14 -Wall -Wextra -Werror -Ifirmware/libraries/SpyCarProtocol/src firmware/tests/drive_gate_test.cpp -o /private/tmp/spy-car-gate-test
 /private/tmp/spy-car-gate-test
+TMPDIR=/private/tmp c++ -std=c++14 -Wall -Wextra -Werror firmware/tests/maintenance_gate_test.cpp -o /private/tmp/spy-car-maintenance-test
+/private/tmp/spy-car-maintenance-test
 ```
 
-On Linux use `/tmp` instead of `/private/tmp`. Tests cover default inhibition, neutral arming, deadman release, timeout, duplicate/stale packets, new sessions, rearming, counter/timer wrap, and packet validation. This tests the shared gate directly; it does not simulate RF, ADC accuracy, PWM timing, motors, or the power circuit.
+On Linux use `/tmp` instead of `/private/tmp`. Tests cover default inhibition, neutral arming, deadman release, timeout, duplicate/stale packets, new sessions, rearming, counter/timer wrap, packet validation, maintenance button timing and maintenance staying latched. These test our gates directly; they do not simulate the standard HTTPUpdateServer, RF, ADC accuracy, PWM timing, motors, or the power circuit.
 
 API provenance: [Espressif ESP-NOW](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_now.html), [Arduino-ESP32 LEDC](https://docs.espressif.com/projects/arduino-esp32/en/latest/api/ledc.html), [Arduino-ESP32 ADC](https://docs.espressif.com/projects/arduino-esp32/en/latest/api/adc.html). The implementation is original code built against these documented interfaces.
