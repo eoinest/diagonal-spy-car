@@ -9,6 +9,7 @@
 #include <SpyCarProtocol.h>
 #include "maintenance_gate.h"
 #include "ota_service.h"
+#include "web_control.h"
 #if __has_include("config.private.h")
 #include "config.private.h"
 #else
@@ -30,6 +31,8 @@ bool radioReady = false;
 std::atomic<bool> maintenanceActive{false};
 spycar::MaintenanceGate maintenance;
 CarUpdater updater;
+WebControl webControl;
+std::atomic<bool> webStopRequested{false};
 bool pwmReady = false;
 bool outputFault = false;
 bool batteryLatched = false;
@@ -46,8 +49,18 @@ bool keyPresent(const uint8_t *key) {
   return combined != 0;
 }
 
+bool queueWebCommand(const spycar::Packet &packet, uint32_t issuedAt) {
+  if (maintenanceActive || !receiveQueue) return false;
+  Received received{packet, issuedAt};
+  if (xQueueSend(receiveQueue, &received, 0) == pdTRUE) return true;
+  receiveOverflow = true;
+  return false;
+}
+
+void requestWebStop() { webStopRequested = true; }
+
 void onReceive(const esp_now_recv_info_t *info, const uint8_t *data, int length) {
-  if (maintenanceActive || !info || length != sizeof(spycar::Packet) ||
+  if (WEB_CONTROL_ENABLED || maintenanceActive || !info || length != sizeof(spycar::Packet) ||
       memcmp(info->src_addr, TRANSMITTER_MAC, 6) != 0) return;
   Received received;
   memcpy(&received.packet, data, sizeof(received.packet));
@@ -136,10 +149,15 @@ void enterMaintenance() {
   radioReady = false;
   if (receiveQueue) xQueueReset(receiveQueue);
   receiveOverflow = false;
+  if (WEB_CONTROL_ENABLED && !webControl.stop()) {
+    Serial.println("Could not stop control server; staying parked without updater.");
+    return;
+  }
   updater.begin();
 }
 
 void setup() {
+  vTaskPrioritySet(nullptr, 3); // Keep motor stops ahead of the HTTP task (2).
   pinMode(OTA_BUTTON_PIN, INPUT_PULLUP);
   pinMode(BATTERY_SENSE_ENABLE_PIN, OUTPUT);
   digitalWrite(BATTERY_SENSE_ENABLE_PIN, LOW);
@@ -156,6 +174,10 @@ void setup() {
   // Known neutral must not depend on successful radio pairing.
   attachNeutral();
   receiveQueue = xQueueCreate(8, sizeof(Received));
+  if (WEB_CONTROL_ENABLED) {
+    if (receiveQueue) webControl.begin();
+    return; // Browser control replaces the handheld's pairing/radio gates.
+  }
   WiFi.mode(WIFI_STA);
   WiFi.setSleep(false);
   Serial.printf("Receiver station MAC: %s\n", WiFi.macAddress().c_str());
@@ -192,6 +214,12 @@ void loop() {
     delay(1);
     return; // No drive processing, including after update failures/timeouts.
   }
+  if (WEB_CONTROL_ENABLED) webControl.tick();
+  if (webStopRequested.exchange(false)) {
+    drive.stop();
+    stopNow();
+    if (receiveQueue) xQueueReset(receiveQueue);
+  }
   if (outputFault) {
     digitalWrite(BATTERY_SENSE_ENABLE_PIN, LOW);
     batterySampling = false;
@@ -208,7 +236,7 @@ void loop() {
     batterySampling = false;
   }
   // A low reading immediately disarms; 1s continuous low latches until reboot.
-  drive.inhibit(maintenance.inhibit || !radioReady || !pwmReady ||
+  drive.inhibit(maintenance.inhibit || !(WEB_CONTROL_ENABLED ? webControl.ready() : radioReady) || !pwmReady ||
                 !BATTERY_CALIBRATION_CONFIRMED || !batteryValid || batteryLatched);
   drive.tick(now);
   const bool queueFault = receiveOverflow.exchange(false);
@@ -222,24 +250,43 @@ void loop() {
   // After overflow, accept no command in this iteration, including a rearm.
   for (int processed = 0; !queueFault && receiveQueue && processed < 8 &&
        xQueueReceive(receiveQueue, &received, 0) == pdTRUE; ++processed) {
+    if (WEB_CONTROL_ENABLED && received.packet.session != webControl.session()) continue;
     drive.accept(received.packet, received.time, millis());
     // Process every release packet, even if a press follows in the same batch.
     if (!drive.armed) stopNow();
   }
   drive.tick(millis()); // Recheck the boundary immediately before any PWM write.
+  if (webStopRequested.exchange(false)) {
+    drive.stop();
+    if (receiveQueue) xQueueReset(receiveQueue);
+  }
   if (!drive.armed) {
     stopNow();
   } else if (now - lastServo >= 20) {
     lastServo = now;
     int left = drive.throttle - drive.steering;
     int right = drive.throttle + drive.steering;
-    const int maximum = max(1000, max(abs(left), abs(right)));
-    left = left * 1000 / maximum;
-    right = right * 1000 / maximum;
+    if (WEB_CONTROL_ENABLED) {
+      const auto mix = spycar::mixJoystick(-drive.steering, drive.throttle);
+      left = mix.left;
+      right = mix.right;
+    } else {
+      const int maximum = max(1000, max(abs(left), abs(right)));
+      left = left * 1000 / maximum;
+      right = right * 1000 / maximum;
+    }
     leftPulse = approach(leftPulse, LEFT_NEUTRAL_US + LEFT_DIRECTION * left * MAX_DEVIATION_US / 1000);
     rightPulse = approach(rightPulse, RIGHT_NEUTRAL_US + RIGHT_DIRECTION * right * MAX_DEVIATION_US / 1000);
     if (pwmReady) writePulse(LEFT_SERVO_PIN, leftPulse);
     if (pwmReady) writePulse(RIGHT_SERVO_PIN, rightPulse);
+  }
+  if (WEB_CONTROL_ENABLED) {
+    const auto state = maintenance.inhibit ? WebDriveState::Maintenance :
+      outputFault ? WebDriveState::OutputFault :
+      !SERVO_CALIBRATION_CONFIRMED ? WebDriveState::ServoSetup :
+      !BATTERY_CALIBRATION_CONFIRMED ? WebDriveState::BatterySetup :
+      !batteryValid || batteryLatched ? WebDriveState::BatteryLow : WebDriveState::Ready;
+    webControl.status(state, drive.armed, BATTERY_CALIBRATION_CONFIRMED ? batteryVoltage : NAN);
   }
   if (now - lastStatus >= 1000) {
     lastStatus = now;

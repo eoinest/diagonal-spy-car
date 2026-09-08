@@ -16,6 +16,14 @@ Use the [six-page illustrated wiring PDF](output/pdf/spy-car-wiring-guide.pdf), 
 
 **Routine firmware updates use Espressif's bundled HTTPUpdateServer:** after one USB installation and private password setup, hold the S2 Mini's BOOT/0 button for three seconds after normal startup, join `SpyCar-Update`, and upload the receiver application at `http://192.168.4.1/update`. Driving stays locked during updates. No extra power switch or onboard hardware is needed; USB remains for initial setup and recovery. Read the [wireless update instructions and bench verification limits](firmware/README.md#wireless-receiver-updates). This feature is software-tested, not yet verified on the physical car.
 
+## Browser joystick remote
+
+The S2 Mini now serves a simple phone or desktop joystick at **http://spy-car.local/** using the same existing-Wi-Fi + mDNS approach as auto-switch. Hold and drag for proportional forward/reverse, curved turns and spins; release to stop. An optional **SpyCar** Wi-Fi network works away from your router. No app, internet service or second ESP32 is required. The existing handheld remains an optional firmware mode.
+
+Read the [network setup, calibration and testing instructions](firmware/README.md#browser-remote-control). The page also shows pack voltage. Software and simulated browser checks pass; actual networking and servo behavior still require a wheels-raised test on the car. Firmware defaults keep motion disabled until servo and battery calibration are confirmed.
+
+![Phone joystick preview using simulated car telemetry](images/web-control-preview.png)
+
 ## Current work: integral printed axles and press-fit wheels
 
 The latest [revision 0.4 model](cad/rolling/README.md) makes both passive-wheel axles **part of the printed chassis**, with integral shoulders and servo retaining clips. Bearings press-fit into the wheels and onto the stationary pegs. There are **no added screws, nuts, caps or separate spacers** in this mechanical stage: only the owned servos and two MR83ZZ bearings are purchased parts.

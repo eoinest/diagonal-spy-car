@@ -4,6 +4,8 @@
 
 The battery is 7.4 V nominal and 8.4 V fully charged. Adjust the converter output to **5.00 V before connecting any loads**. “LM2596-style” identifies the module family, not a verified manufacturer, continuous-current rating or protection specification. Confirm the markings and polarity on the owned board. No charger, servo motor driver or custom PCB is required on the car; each continuous servo contains its own motor driver.
 
+Browser remote control runs on the existing S2 Mini and adds no wiring or hardware. A phone replaces the optional ESP-NOW handheld. See [browser setup](../firmware/README.md#browser-remote-control); the battery-sensing and USB-isolation requirements below still apply.
+
 ## Car topology
 
 ```mermaid
