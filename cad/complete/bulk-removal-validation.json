@@ -1,6 +1,6 @@
 {
   "revision": "0.6.2-no-external-bulk",
-  "source_sha256": "9deeffbfcc153594a68f9915a48ca1ddab99453fcf15b108dbb1553a52aededa",
+  "source_sha256": "a8e940c877319424683a5709a3a7369ac6d75a8c2339beef5c9493272628d21d",
   "removed_objects": [
     "220uF 10V external bulk capacitor",
     "220uF 10V external bulk capacitor.001",

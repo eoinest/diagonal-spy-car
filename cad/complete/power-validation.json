@@ -1,6 +1,6 @@
 {
   "revision": "0.6.2-no-external-bulk",
-  "source_sha256": "431011719be43d6c16b07264aed9a16a9902c61b476147c9b92673e4bb7099b4",
+  "source_sha256": "1a0367185bfb70f99231511049ae2c6b1f232f565cd1983a9f983e89350107ec",
   "preserved_meshes": 273,
   "protected_geometry_unchanged": true,
   "rigid_package_collisions": [],

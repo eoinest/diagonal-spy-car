@@ -1,6 +1,6 @@
 # Complete camera-free assembly - revision 0.6.2
 
-Open **[complete-spy-car.blend](complete-spy-car.blend)**. It contains `01 ASSEMBLED`, `02 EXPLODED`, `03 BATTERY DIMENSIONS`, `04 POWER SERVICE`, and `05 CONNECTOR DETAILS` scenes, named component collections, millimetre units, and source/confidence properties on the new electronics objects. The exploded scene hides loose wire curves to expose the parts.
+Open **[spy-car-v0.6.2-no-extra-capacitor.blend](spy-car-v0.6.2-no-extra-capacitor.blend)** for the verified capacitor-free snapshot with the full car framed in Blender. The canonical build output is [complete-spy-car.blend](complete-spy-car.blend). It contains `01 ASSEMBLED`, `02 EXPLODED`, `03 BATTERY DIMENSIONS`, `04 POWER SERVICE`, and `05 CONNECTOR DETAILS` scenes, named component collections, millimetre units, and source/confidence properties on the new electronics objects. The exploded scene hides loose wire curves to expose the parts.
 
 ![Assembled car](assembly.png)
 
