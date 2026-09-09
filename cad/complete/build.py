@@ -204,20 +204,6 @@ for xx in (-20.5,-18,-15.5):
 wire('Battery positive lead',[terminals['battery']['positive'],(-25,-5,40),(-15,-8,44),(-2.5,-10,42.7)],'red',.75)
 wire('Battery negative lead',[terminals['battery']['negative'],(-25,1,40),(-15,-7,44),(2.5,-10,42.7)],'black',.75)
 for idx,col in enumerate(('black','white','red')):wire('Balance cell tap '+str(idx),[terminals['battery']['balance_lead_exit'],(-25,2+idx,38),(-20,6+idx*.3,44),(-18+(idx-1)*2.5,2.0,44.6)],col,.35)
-# Switched-sense board under the removable deck, clear of USB access and servo clips.
-sense=box('Gated ADC perfboard - underside carrier',(0,0,18.7),(20,12,1.0),PART,'pcb',bevel=.2,group='harness')
-for xx in range(-8,10,3):
-    for yy in (-4,0,4):cyl('Perfboard solder pad',(xx,yy,19.25),.6,.1,PART,'gold',group='harness')
-for xx,name in [(-5,'QP BS250P'),(5,'QN 2N3904BU')]:
-    box(name+' assumed TO92 package',(xx,2.5,21.6),(4.6,3.0,4.6),PART,'black',bevel=.5,group='harness')
-    for k in (-1,0,1):wire(name+' lead'+str(k),[(xx+k*1.27,2.5,19.4),(xx+k*1.27,1.5,19.25)],'metal',.18)
-for i,val in enumerate(['100k','100k','100k','10k','10k','33k']):
-    xx=-7+(i%3)*7;yy=-4+(i//3)*3
-    cyl('Sense resistor '+val,(xx,yy,20.2),.75,3.2,PART,'tan','X',group='harness')
-    for dx in (-2,2):wire('Resistor lead',[(xx+dx,yy,20.2),(xx+dx,yy,19.25)],'metal',.13)
-for sy in (-1,1):
-    union(deck,box('ADC carrier wall',(0,sy*6.8,21.5),(20,1.2,7.2)))
-    union(deck,box('ADC carrier ledge',(0,sy*6.2,18.0),(20,2.0,.4)))
 # Bulk capacitor and fuse occupy separate underdeck cradles, away from the pouch.
 bulk=cyl('220uF 10V external bulk capacitor',(15,0,21.5),3.25,9,PART,'black','Y',group='harness')
 cyl('Bulk capacitor metal lid',(15,4.52,21.5),3.1,.1,PART,'metal','Y',group='harness')
@@ -226,16 +212,11 @@ boolean(cradle,cyl('Bulk cavity',(15,0,21.5),3.55,10,axis='Y'))
 boolean(cradle,box('Bulk insertion opening',(15,0,17.5),(3.8,11,5)))
 union(deck,cradle)
 for yy in (-4.85,4.85):union(deck,box('Bulk axial stop',(15,yy,24.5),(4,.6,1.8)))
-for loc,name in [((0,4.5,20.4),'100nF ADC filter'),((15,-5.7,21),'100nF bus bypass')]:box(name,loc,(2,1,2),PART,'tan',bevel=.15,group='harness')
+for loc,name in [((15,-5.7,21),'100nF bus bypass')]:box(name,loc,(2,1,2),PART,'tan',bevel=.15,group='harness')
 fuse=box('Input fuse - unselected small leaded package',(-15,0,21),(3.5,8,4),PART,'green',bevel=.4,group='harness')
 for xx in (-17.35,-12.65):union(deck,box('Fuse holder side',(xx,0,21.9),(1,9,6.6)))
 for yy in (-4.65,4.65):union(deck,box('Fuse holder end stop',(-15,yy,22.2),(5.7,1.0,6.0)))
 for xx in (-16.5,-13.5):union(deck,box('Fuse retaining lip',(xx,0,18.5),(1.7,8,.6)))
-# ADC insertion end stop and a small long tongue at the opposite end.
-union(deck,box('ADC fixed end stop',(10.6,0,21.5),(.8,13.6,7.2)))
-union(deck,box('ADC spring root',(-11.0,6.6,21.5),(1.0,1.2,7.2)))
-union(deck,box('ADC spring tongue',(-11.0,2.6,18.8),(1.0,8.0,1.0)))
-union(deck,box('ADC retaining hook',(-10.5,-1.0,18.8),(1.0,1.2,1.2),bevel=.15))
 jp=box('J_PWR removable logic feed',(0,8,34),(5,4,3),PART,'black',bevel=.3,group='harness')
 # Routed named nets use exact modeled terminal positions where supplied.
 def terminal(group,key,fallback):return terminals.get(group,{}).get(key,fallback)
@@ -259,14 +240,9 @@ for side,y,pin,color in [(-1,20,'GPIO16','orange'),(1,-20,'GPIO18','blue')]:
     wire(pin+' signal to servo',[target,(lane,7,34),(lane,4,20),exitpt],color,.35)
     wire('5V servo '+pin,[starplus,(17,0,31),(lane,0,20),(exitpt[0],exitpt[1]+1,exitpt[2])],'red',.45)
     wire('GND servo '+pin,[starminus,(18,1,31),(lane+1,0,20),(exitpt[0],exitpt[1]+2,exitpt[2])],'black',.45)
-for pin,yy in [('GPIO3',27),('GPIO7',24)]:
-    pt=terminal('s2',pin,[5,33.43,30.85]);wire('Sense '+pin,[(-9,4 if pin=='GPIO3' else 2,19.3),(-17,7,23),(-19,10,33),pt],'green',.3)
-wire('Sense fused VBAT feed',[(-15,-4,21),(-14,-8,23),(8,-8,22),(8,4,19.3)],'red',.3)
-wire('Sense ground',[(-8,-4,19.3),(-17,-4,22),(16,8,32),starminus],'black',.3)
-
 # Final loop clearances also pass through later-added underside walls and PCB fences.
 for x in (-7.5,7.5):
-    tool=box('TPU loop clearance outer',(x,-2.5,33.1),(4.6,21.6,18.8),bevel=.5)
+    tool=box('TPU loop clearance outer',(x,-2.5,33.1),(4.64,21.6,18.8),bevel=.5)
     boolean(tool,box('TPU loop clearance cavity',(x,-2.5,33.1),(6,18.4,15.6),bevel=.5))
     boolean(deck,tool)
 
@@ -281,7 +257,7 @@ def export(o,filename,axis=None):
     bm=bmesh.new();bm.from_mesh(mesh);bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.00001);bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=.00001);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bmesh.ops.triangulate(bm,faces=list(bm.faces));bm.to_mesh(mesh);bm.free();mesh.calc_loop_triangles()
     path=OUT/filename
     with path.open('wb') as f:
-        f.write(b'Diagonal spy car v0.5 / mm / assumed fit'.ljust(80,b'\0'));f.write(struct.pack('<I',len(mesh.loop_triangles)))
+        f.write(b'Diagonal spy car v0.6 / mm / assumed fit'.ljust(80,b'\0'));f.write(struct.pack('<I',len(mesh.loop_triangles)))
         for t in mesh.loop_triangles:
             vs=[mesh.vertices[i].co for i in t.vertices];n=(vs[1]-vs[0]).cross(vs[2]-vs[0]).normalized();f.write(struct.pack('<12fH',*n,*vs[0],*vs[1],*vs[2],0))
     bpy.data.meshes.remove(mesh);result=validate_stl(path);result['file']=filename;return result
@@ -304,7 +280,7 @@ for i,a in enumerate(newprints):
     for b in newprints[i+1:]:
         vol=overlap(a,b)
         if vol>.03:collisions.append({'a':a.name,'b':b.name,'volume_mm3':round(vol,4)})
-rigid_aux=[o for o in groups['harness'] if o.type=='MESH' and any(t in o.name for t in ('perfboard','TO92 package','resistor','external bulk','Input fuse','100nF','J_PWR','XT30 battery','XT30 harness','balance plug'))]
+rigid_aux=[o for o in groups['harness'] if o.type=='MESH' and any(t in o.name for t in ('external bulk','Input fuse','100nF','J_PWR','XT30 battery','XT30 harness','balance plug'))]
 for a in rigid_aux:
     for b in newprints+groups['base']+groups['battery']+groups['buck']+groups['s2']:
         if b.type!='MESH':continue

@@ -35,11 +35,6 @@ WebControl webControl;
 std::atomic<bool> webStopRequested{false};
 bool pwmReady = false;
 bool outputFault = false;
-bool batteryLatched = false;
-bool batteryValid = false;
-bool lowPending = false;
-uint32_t lowSince = 0;
-float batteryVoltage = 0;
 int leftPulse = LEFT_NEUTRAL_US;
 int rightPulse = RIGHT_NEUTRAL_US;
 
@@ -76,7 +71,6 @@ void writePulse(uint8_t pin, int microseconds) {
     drive.stop();
     pwmReady = false;
     outputFault = true;
-    digitalWrite(BATTERY_SENSE_ENABLE_PIN, LOW);
     ledcDetach(LEFT_SERVO_PIN);
     ledcDetach(RIGHT_SERVO_PIN);
     pinMode(LEFT_SERVO_PIN, OUTPUT);
@@ -95,31 +89,6 @@ void stopNow() {
 
 int approach(int current, int target) {
   return current + constrain(target - current, -SLEW_US_PER_20MS, SLEW_US_PER_20MS);
-}
-
-void updateBattery(uint32_t now) {
-  uint32_t totalMv = 0;
-  for (int i = 0; i < 8; ++i) totalMv += analogReadMilliVolts(BATTERY_ADC_PIN);
-  batteryVoltage = (totalMv / 8000.0f) * BATTERY_DIVIDER_RATIO * BATTERY_SCALE +
-                   BATTERY_OFFSET_V;
-  batteryValid = batteryVoltage >= BATTERY_STOP_V &&
-                 batteryVoltage <= BATTERY_MAX_VALID_V;
-  if (!batteryValid) {
-    if (!lowPending) { lowPending = true; lowSince = now; }
-    if (now - lowSince >= BATTERY_LOW_HOLD_MS) batteryLatched = true;
-  } else {
-    lowPending = false;
-  }
-}
-
-bool otaPowerOkay() {
-  // Until ADC commissioning, the operator must check both cells with a meter.
-  if (!BATTERY_CALIBRATION_CONFIRMED) return true;
-  digitalWrite(BATTERY_SENSE_ENABLE_PIN, HIGH);
-  delay(20);
-  updateBattery(millis());
-  digitalWrite(BATTERY_SENSE_ENABLE_PIN, LOW);
-  return batteryValid && !batteryLatched && batteryVoltage >= 7.4f;
 }
 
 void attachNeutral() {
@@ -143,7 +112,6 @@ void enterMaintenance() {
   maintenanceActive = true;
   drive.inhibit(true);
   stopNow();
-  digitalWrite(BATTERY_SENSE_ENABLE_PIN, LOW);
   esp_now_unregister_recv_cb();
   esp_now_deinit();
   radioReady = false;
@@ -159,8 +127,6 @@ void enterMaintenance() {
 void setup() {
   vTaskPrioritySet(nullptr, 3); // Keep motor stops ahead of the HTTP task (2).
   pinMode(OTA_BUTTON_PIN, INPUT_PULLUP);
-  pinMode(BATTERY_SENSE_ENABLE_PIN, OUTPUT);
-  digitalWrite(BATTERY_SENSE_ENABLE_PIN, LOW);
   pinMode(LEFT_SERVO_PIN, OUTPUT);
   pinMode(RIGHT_SERVO_PIN, OUTPUT);
   digitalWrite(LEFT_SERVO_PIN, LOW);
@@ -169,8 +135,7 @@ void setup() {
 #if ARDUINO_USB_CDC_ON_BOOT
   Serial.setTxTimeoutMs(0); // A full USB monitor buffer must not delay stopping.
 #endif
-  analogReadResolution(12);
-  analogSetPinAttenuation(BATTERY_ADC_PIN, ADC_11db);
+  Serial.println("Manual battery checks required: no voltage sensing or low-voltage cutoff.");
   // Known neutral must not depend on successful radio pairing.
   attachNeutral();
   receiveQueue = xQueueCreate(8, sizeof(Received));
@@ -201,12 +166,9 @@ void setup() {
 
 void loop() {
   const uint32_t now = millis();
-  static uint32_t lastBattery = 0, lastServo = 0, lastStatus = 0;
-  static bool batterySampling = false;
-  static uint32_t batteryEnabledAt = 0;
+  static uint32_t lastServo = 0, lastStatus = 0;
   if (maintenance.update(digitalRead(OTA_BUTTON_PIN) == LOW, now)) {
     enterMaintenance();
-    batterySampling = false;
   }
   if (maintenance.active) {
     stopNow(); // Hardware PWM holds calibrated neutral during HTTP/flash work.
@@ -220,24 +182,8 @@ void loop() {
     stopNow();
     if (receiveQueue) xQueueReset(receiveQueue);
   }
-  if (outputFault) {
-    digitalWrite(BATTERY_SENSE_ENABLE_PIN, LOW);
-    batterySampling = false;
-  }
-  if (!batterySampling && !batteryLatched && !outputFault && now - lastBattery >= 100) {
-    lastBattery = now;
-    digitalWrite(BATTERY_SENSE_ENABLE_PIN, HIGH);
-    batteryEnabledAt = now;
-    batterySampling = true;
-  }
-  if (batterySampling && now - batteryEnabledAt >= 20) {
-    updateBattery(now);
-    digitalWrite(BATTERY_SENSE_ENABLE_PIN, LOW);
-    batterySampling = false;
-  }
-  // A low reading immediately disarms; 1s continuous low latches until reboot.
-  drive.inhibit(maintenance.inhibit || !(WEB_CONTROL_ENABLED ? webControl.ready() : radioReady) || !pwmReady ||
-                !BATTERY_CALIBRATION_CONFIRMED || !batteryValid || batteryLatched);
+  drive.inhibit(maintenance.inhibit || !(WEB_CONTROL_ENABLED ? webControl.ready() : radioReady) ||
+                !pwmReady || outputFault);
   drive.tick(now);
   const bool queueFault = receiveOverflow.exchange(false);
   if (queueFault) {
@@ -246,7 +192,7 @@ void loop() {
     xQueueReset(receiveQueue);
   }
   Received received;
-  // Bound callback work so a busy sender cannot starve sensing or failsafes.
+  // Bound callback work so a busy sender cannot starve failsafes.
   // After overflow, accept no command in this iteration, including a rearm.
   for (int processed = 0; !queueFault && receiveQueue && processed < 8 &&
        xQueueReceive(receiveQueue, &received, 0) == pdTRUE; ++processed) {
@@ -283,15 +229,13 @@ void loop() {
   if (WEB_CONTROL_ENABLED) {
     const auto state = maintenance.inhibit ? WebDriveState::Maintenance :
       outputFault ? WebDriveState::OutputFault :
-      !SERVO_CALIBRATION_CONFIRMED ? WebDriveState::ServoSetup :
-      !BATTERY_CALIBRATION_CONFIRMED ? WebDriveState::BatterySetup :
-      !batteryValid || batteryLatched ? WebDriveState::BatteryLow : WebDriveState::Ready;
-    webControl.status(state, drive.armed, BATTERY_CALIBRATION_CONFIRMED ? batteryVoltage : NAN);
+      !SERVO_CALIBRATION_CONFIRMED ? WebDriveState::ServoSetup : WebDriveState::Ready;
+    webControl.status(state, drive.armed);
   }
   if (now - lastStatus >= 1000) {
     lastStatus = now;
-    Serial.printf("VBAT=%.3fV armed=%d low_latched=%d radio=%d PWM=%d MAC=%s\n",
-                  batteryVoltage, drive.armed, batteryLatched, radioReady, pwmReady,
+    Serial.printf("Battery=manual-check armed=%d radio=%d PWM=%d MAC=%s\n",
+                  drive.armed, radioReady, pwmReady,
                   WiFi.macAddress().c_str());
   }
   delay(1);

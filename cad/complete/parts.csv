@@ -12,4 +12,4 @@ Battery protective padding,1,0.8 mm nominal foam,Trim to actual pouch and cradle
 LOLIN S2 Mini,1,../../electronics/camera-free-bom.csv,Owned board; published outline
 Large adjustable buck,1,../../electronics/camera-free-bom.csv,Owned board; 43 x 21 x 14 mm provisional
 Lumenier 300mAh 2S XT30 pack,1,../../electronics/camera-free-bom.csv,Selected 48 x 17 x 12 mm pack
-Harness connectors fuse capacitors and switched sensing parts,1,../../electronics/camera-free-bom.csv,Full quantities and electrical requirements in electronics BOM
+Harness connectors fuse and power capacitors,1,../../electronics/camera-free-bom.csv,Full quantities and electrical requirements in electronics BOM

@@ -40,7 +40,7 @@ function fixture() {
     close() { this.readyState = 3; this.emit('close'); }
     open() { this.readyState = 1; this.emit('open'); }
     reply(data = {}) {
-      this.emit('message', {data: JSON.stringify({token: 42, ready: true, armed: false, battery: 7.8, reason: 'Ready', reset: false, ...data})});
+      this.emit('message', {data: JSON.stringify({token: 42, ready: true, armed: false, reason: 'Ready', reset: false, ...data})});
     }
   }
   function schedule(fn, delay, repeat = 0) {

@@ -1,6 +1,6 @@
 {
-  "revision": "0.5.2-power-service",
-  "source_sha256": "cb832d3dd551e1c286a671b1b331590661ef3f5da08e54d637d75f7e3457828c",
+  "revision": "0.6.0-manual-battery",
+  "source_sha256": "5a3986dc66b362e604642f32905c04257cb8726936666b8e79c45da07eaf2f3c",
   "preserved_meshes": 273,
   "protected_geometry_unchanged": true,
   "rigid_package_collisions": [],
@@ -11,10 +11,9 @@
   },
   "J_PWR": "Two insulated mating halves in positive lead only; connector envelope remains provisional",
   "bypass": "100 nF at S2 VBUS/GND, after J_PWR",
-  "perfboard_pitch_mm": 2.54,
+  "battery_monitoring": "Manual per-cell multimeter checks; no sensing board or automatic low-voltage stop",
   "limitations": [
     "Routing illustrates nets; complete wire collision and bend-radius validation is not performed.",
-    "Perfboard does not contain a verified copper/jumper layout.",
     "Existing fuse pocket retained; axial fuse must be insulated and strain-relieved, with loose retention checked physically.",
     "Home-Wi-Fi-first OTA is planned; current firmware creates SpyCar-Update.",
     "Published nominal components do not replace measurements of owned hardware."

@@ -2,7 +2,7 @@
 
 Original MIT-licensed prototype firmware for an ESP32-S2 Mini car. The car hosts a touch/mouse joystick at **http://spy-car.local/**, with no app, internet connection, or second ESP32 needed. The previous ESP-NOW handheld remains an optional build mode. A separate parked Wi-Fi mode provides browser firmware updates. Arduino-ESP32 **3.x** is required; the LEDC API differs from 2.x. No code from the inspiration repository was copied.
 
-The checked-in configuration cannot arm. Configure Wi-Fi, measure servo neutral, and calibrate battery sensing first. Pairing keys, MAC addresses and analog joystick calibration are needed only for the optional handheld. Firmware compilation and host tests do not validate wiring, servo behavior, RF performance, or battery protection on real hardware.
+The checked-in configuration cannot arm. Configure Wi-Fi and measure servo neutral first. This simplified POC has no battery-sensing circuit: check both cells with a multimeter before and between short, attended runs. Firmware provides no low-voltage warning or cutoff. Pairing keys, MAC addresses and analog joystick calibration are needed only for the optional handheld. Firmware compilation and host tests do not validate wiring, servo behavior, RF performance, or battery protection on real hardware.
 
 ## Browser remote control
 
@@ -35,9 +35,9 @@ The browser exchanges commands about every 50 ms with only one normal command aw
 
 ### First drive and verification
 
-Start with servo power disconnected. Set up the network and confirm the page opens. Copy receiver `config.h` to `config.private.h`; perform the servo-neutral and battery calibration in commissioning steps **4–6** below. The browser shows the missing calibration and stays disabled until both are confirmed. The existing gated battery-sense circuit is still required by this firmware; this change does not replace it with manual multimeter checks.
+Start with servo power disconnected. Set up the network and confirm the page opens. Copy receiver `config.h` to `config.private.h`; perform the servo-neutral calibration in commissioning steps **4–5** below. The browser shows the missing servo calibration and stays disabled until it is confirmed. No ADC calibration or perfboard is required; GPIO3 and GPIO7 remain unconnected. The minimal page shows connection status, with no battery-voltage readout.
 
-Upload the configured receiver, raise the wheels, and verify forward/reverse, both spins, gradual speed changes and immediate neutral on release. Check a hidden tab, phone Wi-Fi loss, reconnection requiring a fresh gesture, a second browser, and low-battery inhibition. Finally make a slow floor test. The diagonal wheel arrangement still needs sideways tire scrub to turn.
+Upload the configured receiver, raise the wheels, and verify forward/reverse, both spins, gradual speed changes and immediate neutral on release. Check a hidden tab, phone Wi-Fi loss, reconnection requiring a fresh gesture, a second browser, and maintenance-mode inhibition. Finally make a slow floor test. The diagonal wheel arrangement still needs sideways tire scrub to turn.
 
 Software verification includes host protocol/gate tests, 15 browser-controller unit cases, phone and desktop layout checks, simulated WebSocket pointer interactions, and an Arduino-ESP32 3.3.11 compile. **The actual ESP32 HTTP/WebSocket service, phone networking and physical servo stopping remain untested on hardware.**
 
@@ -51,13 +51,11 @@ To use the previous handheld instead, set `WEB_CONTROL_ENABLED = false` in `web.
 | --- | --- | --- |
 | S2 mini | GPIO16 | Left continuous-rotation servo signal |
 | S2 mini | GPIO18 | Right continuous-rotation servo signal |
-| S2 mini | GPIO3 | Battery divider midpoint, with 100 nF to GND |
-| S2 mini | GPIO7 | Enable for the BS250P/2N3904 battery-sense gate |
 | Original ESP32 DevKit | GPIO32 | Joystick throttle wiper |
 | Original ESP32 DevKit | GPIO33 | Joystick steering wiper |
 | Original ESP32 DevKit | GPIO27 | Normally-open deadman button to GND; internal pull-up |
 
-The three DevKit connections above are only for the optional handheld. Power its joystick from **3.3 V**, connect grounds, and keep all analog input voltages in range. Servo power comes from the regulated servo rail, never from an ESP GPIO or its 3.3 V pin. See [wiring](../electronics/wiring.md) for the gated battery divider and the complete power path. An ungated pack divider can backpower the MCU when its regulator turns off; do not omit that circuit.
+The three DevKit connections above are only for the optional handheld. Power its joystick from **3.3 V**, connect grounds, and keep all analog input voltages in range. Servo power comes from the regulated servo rail, never from an ESP GPIO or its 3.3 V pin. See [wiring](../electronics/wiring.md) for the complete power path. No battery divider or sense gate is fitted in this simplified build; do not connect the LiPo directly to a GPIO.
 
 ## Build
 
@@ -98,7 +96,7 @@ No new switch, programmer, router, or custom PCB is needed. USB remains necessar
 ### Each wireless update
 
 1. Build the receiver with those same private files and partition scheme. The upload file is **`firmware/build/receiver_s2/receiver_s2.ino.bin`**. Do not select a merged image, bootloader, partition table, transmitter, or servo calibration sketch.
-2. Leave USB unplugged and power the car normally from its LiPo and buck. Raise the wheels and release the browser joystick (or transmitter deadman). Check **both cells** with the meter and start with a charged, balanced pack. During initial setup, servos with unknown neutral must have their power disconnected.
+2. With USB unplugged and the LiPo disconnected from the car at XT30, check **both cells** with the meter; use a freshly balance-charged pack. Raise the wheels, release the browser joystick (or transmitter deadman), then reconnect the LiPo to power the car through its buck. During initial setup, servos with unknown neutral must have their power disconnected.
 3. Boot normally with **BOOT/0 released**, then hold that existing button for **three seconds**. Do not hold it while switching on or pressing RESET: that enters the ROM bootloader. A short press already disarms; the long press locks maintenance mode until restart.
 4. Join **`SpyCar-Update`** on your laptop with your private password. Stay connected when warned there is no internet. Open **http://192.168.4.1/update**, log in as `admin`, choose `receiver_s2.ino.bin` in the **Firmware** section, and select **Update Firmware**. Leave the library page's **FileSystem** section alone; the car does not use filesystem updates.
 5. Keep power connected until success and restart. The update network disappears; driving starts disarmed and requires the normal fresh deadman sequence. Failed uploads stay parked and can be retried while the network remains available.
@@ -109,7 +107,7 @@ The network has a five-minute window from entry. The library handles uploads syn
 
 Maintenance blocks incoming commands, stops the browser control server or ESP-NOW, and sets hardware PWM to calibrated neutral before starting the server. The bundled HTTPUpdateServer checks credentials and browser Origin before accepting an upload; Update writes to an inactive application slot and selects it on successful completion. We rely on these standard library behaviors and do not duplicate their parser or storage logic. Their checks cannot determine whether the selected application is the correct car program or free of bugs. Automatic rollback and signed firmware are not configured. Keep USB physically accessible for recovery.
 
-With confirmed ADC calibration, opening update mode requires a valid reading of at least **7.4 V total pack voltage**. This is an entry check only: voltage is not monitored during the library's blocking upload. **Without confirmed ADC calibration there is no automatic update voltage check**; use the meter. Neither path monitors individual cells or disconnects power. Normal drive firmware still requires the existing calibrated sensing circuit; OTA does not remove it.
+There is **no automatic voltage check before or during an update**. Check both cells with a meter beforehand and use a charged, balanced pack. The ESP32 cannot determine remaining charge in this build and cannot disconnect the battery. Old `BATTERY_*` constants in an existing private config have no effect; remove them when refreshing that file.
 
 Calibrated servos can remain connected for routine OTA, but neutral is a command, not electrical isolation. PWM is interrupted during reboot. Verify the owned servos' behavior with wheels raised. The page uses HTTP within the password-protected local AP, not HTTPS; anyone given the password can replace the firmware.
 
@@ -119,15 +117,14 @@ References: [Espressif HTTPUpdateServer](https://github.com/espressif/arduino-es
 
 ## Legacy handheld commissioning
 
-For browser control, use the network setup above and shared calibration steps 4–6 here; skip handheld pairing and analog joystick setup.
+For browser control, use the network setup above and shared calibration steps 4–5 here; skip handheld pairing and analog joystick setup.
 
 1. **Start with servo power disconnected.** Upload the receiver and transmitter in their checked-in state. Their serial status reports the station MAC repeatedly. Keep the car's wheels off the floor during all remaining setup.
 2. Copy each sketch's `config.h` to `config.private.h` in the same folder. The private file overrides the example and is ignored by Git. Put the transmitter station MAC in the receiver config and the receiver station MAC in the transmitter config. Keep the channel identical. Generate two independent random 16-byte values for PMK and LMK, put the same pair in both private files, and set `PAIRING_CONFIGURED=true`. Never upload the private files to GitHub.
 3. Measure joystick center and both endpoints using the transmitter's raw serial readings. Update minima, centers, maxima, and directions. Power must remain 3.3 V. Adjust deadzone so the untouched stick consistently reads zero. Then set `JOYSTICK_CALIBRATION_CONFIRMED=true`.
-4. Find the true neutral of each servo using a servo tester or the supplied `servo_neutral_s2` sketch. The bench sketch accepts serial lines such as `L1500` or `R1500`, emits that pulse for at most five seconds, then removes PWM. Only one output is active. Begin at 1500 µs and adjust in 1–2 µs steps within 1400–1600 until the shaft stops. Record the midpoint of its stopped band. This is an intentional powered bench test: removing PWM is not a guaranteed physical stop for every clone, so keep the switch reachable and turn off power after each test. Do not leave the bench sketch installed for driving.
+4. Find the true neutral of each servo using a servo tester or the supplied `servo_neutral_s2` sketch. The bench sketch accepts serial lines such as `L1500` or `R1500`, emits that pulse for at most five seconds, then removes PWM. Only one output is active. Begin at 1500 µs and adjust in 1–2 µs steps within 1400–1600 until the shaft stops. Record the midpoint of its stopped band. This is an intentional powered bench test: removing PWM is not a guaranteed physical stop for every clone, so keep the XT30 disconnect reachable and unplug power after each test. Do not leave the bench sketch installed for driving.
 5. Enter `LEFT_NEUTRAL_US` and `RIGHT_NEUTRAL_US` in the receiver private config. Confirm the units really are continuous-rotation servos. Restore the receiver sketch. Set `SERVO_CALIBRATION_CONFIRMED=true` only after the neutral measurements. Start with the limited ±180 µs range; verify direction with wheels lifted before trying the floor. Reverse a `*_DIRECTION` constant if necessary.
-6. Assemble and verify the gated divider before connecting ADC3. With the receiver still unable to drive, compare displayed battery voltage with a multimeter and set `BATTERY_SCALE = meter_voltage / displayed_voltage`. If a known offset is measured, use `BATTERY_OFFSET_V`. Validate across the intended range, including around 7.0 V, then set `BATTERY_CALIBRATION_CONFIRMED=true`. A single point is an initial adjustment, not proof of accuracy across the range.
-7. Rebuild and upload private configurations. With the stick centered, release the deadman, then press it while still centered. Move the stick only after that sequence. Release the deadman to stop. Confirm radio loss, transmitter reboot, and low-battery behavior while the wheels are lifted, then make a slow floor test.
+6. Check both cells with a multimeter before the run. Rebuild and upload private configurations. With the stick centered, release the deadman, then press it while still centered. Move the stick only after that sequence. Release the deadman to stop. Confirm radio loss, transmitter reboot, and maintenance-mode inhibition while the wheels are lifted, then make a slow floor test.
 
 Generate local keys, for example, with Python; the resulting values belong only in private config files:
 
@@ -143,9 +140,9 @@ In optional ESP-NOW mode, the transmitter sends encrypted unicast commands every
 
 Releasing the deadman immediately commands the calibrated neutral. A 250 ms command timeout disarms and requires a fresh release-and-centered, then press-and-centered sequence. A held deadman after reconnect cannot restart motion. A moved stick during an arming attempt cancels readiness. The transmitter has no return telemetry or armed indicator, so verify behavior during commissioning. Radio loss detection includes the main-loop scheduling interval; physical stopping distance depends on the servos and surface.
 
-Normal PWM changes slew by at most 8 µs per 20 ms. Deadman, radio-loss, invalid-battery, and fault stops bypass that ramp and command neutral. Neutral PWM is a stop request; it does not disconnect servo power. Unplug XT30 for a definitive power stop; the optional EN switch is only standby. Missing PWM while unconfigured is also not a guarantee that every servo variant will remain still when powered.
+Normal PWM changes slew by at most 8 µs per 20 ms. Deadman, radio-loss, maintenance, and fault stops bypass that ramp and command neutral. Neutral PWM is a stop request; it does not disconnect servo power. Unplug XT30 for a definitive power stop. Missing PWM while unconfigured is also not a guarantee that every servo variant will remain still when powered.
 
-Battery measurement enables GPIO7, waits at least 20 ms without blocking the drive loop, averages eight calibrated millivolt readings at ADC3, then disables the gate. It samples approximately every 100 ms. A reading below 7.0 V or above 8.6 V immediately disarms; one second continuously outside that range latches drive off until reset. The voltage is based on the 100 kΩ/33 kΩ divider and the user's calibration. This is a **2S pack early-stop aid**, not individual-cell monitoring, charger logic, current protection, or guaranteed undervoltage cutoff. The selected hardware protection remains necessary, and leaving the car powered after it stops still consumes battery energy.
+Battery voltage is **not measured by the car**. The sensing perfboard, divider, transistors, ADC filter and GPIO3/GPIO7 connections have been removed. Check each cell with a multimeter before and between short, attended runs, using the limits and procedure in [wiring](../electronics/wiring.md). A total pack measurement alone can hide a weak cell. There is no software low-voltage stop, warning, or automatic power cutoff; the car continues drawing power while parked. Unplug the XT30 after use and before leaving it unattended. The fuse protects against excess current, not over-discharge.
 
 The diagonal wheel geometry remains mechanically prone to scrub; electronic mixing does not remove that resistance. See [mechanics](../docs/mechanics.md).
 
@@ -162,6 +159,6 @@ node firmware/tests/web_control_ui_test.mjs
 python3 scripts/embed_web_control.py --check
 ```
 
-On Linux use `/tmp` instead of `/private/tmp`. Tests cover default inhibition, neutral arming, deadman release, timeout, duplicate/stale packets, new sessions, rearming, counter/timer wrap, packet validation, maintenance button timing and maintenance staying latched. Web tests additionally cover bounded parsing, radial wheel mixing, expiring single-use challenges, browser arming, pointer cancellation, late acknowledgments and reconnect behavior. These test our gates and UI directly; they do not simulate the standard HTTPUpdateServer, RF, ADC accuracy, PWM timing, motors, or the power circuit.
+On Linux use `/tmp` instead of `/private/tmp`. Tests cover default inhibition, neutral arming, deadman release, timeout, duplicate/stale packets, new sessions, rearming, counter/timer wrap, packet validation, maintenance button timing and maintenance staying latched. Web tests additionally cover bounded parsing, radial wheel mixing, expiring single-use challenges, browser arming, pointer cancellation, late acknowledgments and reconnect behavior. These test our gates and UI directly; they do not simulate the standard HTTPUpdateServer, RF, PWM timing, motors, or the power circuit.
 
-API provenance: [Espressif ESP-NOW](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_now.html), [Arduino-ESP32 LEDC](https://docs.espressif.com/projects/arduino-esp32/en/latest/api/ledc.html), [Arduino-ESP32 ADC](https://docs.espressif.com/projects/arduino-esp32/en/latest/api/adc.html). The implementation is original code built against these documented interfaces.
+API provenance: [Espressif ESP-NOW](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/network/esp_now.html), [Arduino-ESP32 LEDC](https://docs.espressif.com/projects/arduino-esp32/en/latest/api/ledc.html). The implementation is original code built against these documented interfaces.

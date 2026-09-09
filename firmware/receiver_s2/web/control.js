@@ -5,7 +5,6 @@
   const knob = document.getElementById('knob');
   const status = document.getElementById('status');
   const dot = document.getElementById('connection-dot');
-  const battery = document.getElementById('battery');
   const speed = document.getElementById('speed');
   const driveState = document.getElementById('drive-state');
   const SEND_MS = 50, ACK_MS = 180, RECONNECT_MS = 750;
@@ -56,7 +55,6 @@
     socket = null; ready = false; token = null;
     clearPending(); cancelGesture(false);
     status.textContent = message + ' · reconnecting…';
-    battery.textContent = '— V';
     if (old && old.readyState < WebSocket.CLOSING) old.close();
     scheduleReconnect();
   }
@@ -111,7 +109,6 @@
       else if (held && phase === 'arming' && acknowledged && acknowledged.centeredHold &&
                acknowledged.gesture === gesture && data.armed) phase = 'driving';
       status.textContent = typeof data.reason === 'string' && data.reason ? data.reason : ready ? 'Ready' : 'Not ready';
-      battery.textContent = typeof data.battery === 'number' && Number.isFinite(data.battery) ? `${data.battery.toFixed(2)} V` : '— V';
       render(); pump();
     });
     current.addEventListener('close', () => { if (socket === current) disconnect('Disconnected'); });

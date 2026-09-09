@@ -6,8 +6,6 @@
 #include "ota_config.h"
 #endif
 
-bool otaPowerOkay();
-
 // Thin car-specific wrapper. Espressif HTTPUpdateServer owns the upload page,
 // authentication, transfer and reboot; its Update library owns flash storage.
 class CarUpdater {
@@ -21,10 +19,7 @@ class CarUpdater {
     for (size_t i = 0; i < length; ++i) {
       if (OTA_PASSWORD[i] < 33 || OTA_PASSWORD[i] > 126) return;
     }
-    if (!otaPowerOkay()) {
-      Serial.println("OTA unavailable: charge/check the battery, then restart.");
-      return;
-    }
+    Serial.println("OTA has no voltage check: use a meter and a charged, balanced pack.");
     WiFi.mode(WIFI_AP);
     if (!WiFi.softAPConfig(IPAddress(192,168,4,1), IPAddress(192,168,4,1), IPAddress(255,255,255,0)) ||
         !WiFi.softAP(OTA_SSID, OTA_PASSWORD, 1, false, 1)) return;

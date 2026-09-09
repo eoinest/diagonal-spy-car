@@ -4,7 +4,7 @@
 
 The battery is 7.4 V nominal and 8.4 V fully charged. Adjust the converter output to **5.00 V before connecting any loads**. “LM2596-style” identifies the module family, not a verified manufacturer, continuous-current rating or protection specification. Confirm the markings and polarity on the owned board. No charger, servo motor driver or custom PCB is required on the car; each continuous servo contains its own motor driver.
 
-Browser remote control runs on the existing S2 Mini and adds no wiring or hardware. A phone replaces the optional ESP-NOW handheld. See [browser setup](../firmware/README.md#browser-remote-control); the battery-sensing and USB-isolation requirements below still apply.
+Browser remote control runs on the existing S2 Mini and adds no wiring or hardware. A phone replaces the optional ESP-NOW handheld. See [browser setup](../firmware/README.md#browser-remote-control); manual battery checks and the USB-isolation requirements below still apply. There is no battery-sensing perfboard in the current build.
 
 ## Car topology
 
@@ -21,15 +21,7 @@ flowchart LR
     JP --> MCU["S2 Mini VBUS / 5V"]
     MCU -- "GPIO16 signal" --> LS
     MCU -- "GPIO18 signal" --> RS
-    VB --> QS["QP: BS250P high-side sensing switch"]
-    MCU -- "GPIO7 through QN: measurement enable" --> QS
-    QS --> R1["R1: 100k ohm"]
-    R1 --> ADC["BAT_ADC: GPIO3"]
-    ADC --> R2["R2: 33k ohm"]
-    ADC --> C1["C1: 100 nF ADC filter"]
-    R2 --> G["Common GND"]
-    C1 --> G
-    XT -. "battery negative" .-> G
+    XT -. "battery negative" .-> G["Common GND"]
     G -. "buck IN− / OUT−" .-> BUCK
     G -. "return" .-> LS
     G -. "return" .-> RS
@@ -37,14 +29,14 @@ flowchart LR
     USB["USB programmer: battery unplugged, J_PWR removed, servo signals unplugged"] -.-> MCU
 ```
 
-`VBAT_SW` is the existing firmware/documentation net name for the fused battery feed; it does not imply an automatic power switch. Ground is a continuous electrical connection between battery negative, buck input/output negative, both servo grounds, S2 Mini GND and the divider bottom. Confirm input-negative/output-negative continuity with the converter unpowered. Keep servo current in the power harness, not through the S2 board, a GPIO, USB connector or solderless breadboard. Keep the ESP32 antenna away from the converter and motor wiring.
+`VBAT_SW` is the existing firmware/documentation net name for the fused battery feed; it does not imply an automatic power switch. Ground is a continuous electrical connection between battery negative, buck input/output negative, both servo grounds and S2 Mini GND. Confirm input-negative/output-negative continuity with the converter unpowered. Keep servo current in the power harness, not through the S2 board, a GPIO, USB connector or solderless breadboard. Keep the ESP32 antenna away from the converter and motor wiring.
 
 ## Car net table
 
 | Net / component label | Connect to | Requirement |
 |---|---|---|
 | Battery positive, XT30 harness side | Input fuse, then `VBAT_SW` | Preserve original battery leads; verify mating connector polarity |
-| `VBAT_SW` | Buck `IN+`; QP source | Raw 2S voltage; never connect directly to a servo, S2 VBUS, 3V3 or GPIO |
+| `VBAT_SW` | Buck `IN+` | Raw 2S voltage; never connect directly to a servo, S2 VBUS, 3V3 or GPIO |
 | Battery negative | Buck `IN−` and common ground | Short 22 AWG or thicker supply wiring |
 | Buck `OUT+` | `5V_BUS` | Set and measure **5.00 V** with all loads disconnected first |
 | Buck `OUT−` | Common ground / soldered return distribution | Separate return branches for both servos and S2 |
@@ -55,21 +47,10 @@ flowchart LR
 | S2 Mini **GPIO18** | Rear-right servo signal | Firmware `RIGHT_SERVO_PIN`; **not GPIO17** |
 | Both servo grounds | Common ground | Identify supply, ground and signal from the actual units; colors/contact order are not proof |
 | C_BULK **220 µF / 10 V** | Positive to `5V_BUS`; negative to GND | External capacitor near the servo power split; polarity matters |
-| C_BYPASS **100 nF ceramic** | S2 `VBUS` after `J_PWR` to GND | Short leads at the S2 supply pads; separate part from the ADC filter C1 |
-| R1 **100 kΩ, 1%** | QP drain / `VBAT_SENSE` → `BAT_ADC` | Upper divider resistor; do not bypass QP |
-| R2 **33 kΩ, 1%** | `BAT_ADC` → GND | Lower divider resistor |
-| C1 **100 nF ceramic, ≥16 V** | `BAT_ADC` → GND | Place beside GPIO3 and R2; this is the ADC filter, not the 5 V bypass |
-| S2 Mini **GPIO3** | `BAT_ADC` | **GPIO3 / ADC1_CH2**, not “ADC channel 3” |
-| S2 Mini **GPIO7** | 10 kΩ → QN base | Battery-sense enable; LOW except during settled measurements |
-| QP **Diodes BS250P** | Source = `VBAT_SW`; drain = `VBAT_SENSE`; gate = `SENSE_GATE` | P-channel high-side switch; source/drain orientation is essential |
-| QN **onsemi 2N3904BU** | Emitter = GND; collector through 10 kΩ to `SENSE_GATE` | Keeps raw pack voltage away from the GPIO |
-| R_GATE **100 kΩ** | QP gate → QP source | Default OFF pull-up |
-| R_GATE_SER **10 kΩ** | QP gate → QN collector | Limits gate pull-down current |
-| R_BASE **10 kΩ** | GPIO7 → QN base | Limits base current |
-| R_BASE_PD **100 kΩ** | QN base → GND | Default OFF when MCU is unpowered or reset |
-| Battery three-contact balance connector | Compatible 2S balance charger / per-cell monitor | Verify connector orientation and cell taps; never connect it directly to S2 pins |
+| C_BYPASS **100 nF ceramic** | S2 `VBUS` after `J_PWR` to GND | Short leads at the S2 supply pads |
+| Battery three-contact balance connector | Compatible 2S balance charger / manual per-cell meter | Verify connector orientation and cell taps; never connect it directly to S2 pins |
 
-Use a DC-rated input fuse in an insulated assembly selected for the battery fault current, wiring and measured inrush; do not call the fuse servo-stall protection. Keep supply/return wires short and use heatshrink and strain relief. The external **220 µF / 10 V plus 100 nF** values are starting decoupling, not a verified fix for voltage dips or inadequate converter capacity. Leave the buck's fitted capacitors in place. Use insulated perfboard for the sensing circuit and a suitably sized soldered harness for power distribution.
+Use a DC-rated input fuse in an insulated assembly selected for the battery fault current, wiring and measured inrush; do not call the fuse servo-stall protection. Keep supply/return wires short and use heatshrink and strain relief. The external **220 µF / 10 V plus 100 nF** values are starting decoupling, not a verified fix for voltage dips or inadequate converter capacity. Leave the buck's fitted capacitors in place. Use insulated soldered joints for power distribution. No perfboard, sensing transistors, sensing resistors, ADC filter, or GPIO3/GPIO7 wires are fitted.
 
 ## Exact S2 Mini pads
 
@@ -81,8 +62,6 @@ The following positions are verified against the [official WEMOS pinout](https:/
 | GND | **Right outer column, row 7** | Right inner row 7 is also GND |
 | Left servo signal GPIO16 | **Right outer column, row 6** | Right inner row 6 is GPIO17; not the right-servo signal |
 | Right servo signal GPIO18 | **Right outer column, row 5** | Right inner row 5 is GPIO21 |
-| Battery ADC GPIO3 | **Left outer column, row 2** | Left inner row 2 is GPIO2 |
-| Sense-enable GPIO7 | **Left outer column, row 4** | Left inner row 4 is GPIO6 |
 
 For a second check, the complete right outer column from top to bottom is **39, 37, 35, 33, 18, 16, GND, VBUS**. GPIO runs at 3.3 V. The genuine board's [V1.0.0 schematic](https://docs.wemos.cc/en/latest/_static/files/sch_s2_mini_v1.0.0.pdf) directly connects the header VBUS and USB VBUS net. Before plugging in powered USB, **unplug the battery, remove `J_PWR`, and unplug both servo signals**. Removing the battery alone does not isolate an attached buck/output harness from USB backfeed. Restore external wiring only after removing USB power. Check clone boards separately.
 
@@ -92,56 +71,21 @@ For routine receiver programming, use the [parked Wi-Fi update mode](../firmware
 
 ## Load and shutdown limits
 
-The provisional 5 V peak budget is **2.8 A**: 1.2 A per servo plus 0.4 A for the S2. These are planning allowances, not measured specifications for the owned servos. The converter's suitability remains unverified even if its listing or IC says “3 A.” Check both servos starting and reversing together, voltage at the S2/servo connectors, and converter temperature at the full pack and near the 7 V stopping threshold. A multimeter can miss short dips; use a scope if available. Do not hold the servos stalled. Reduce the load or replace the converter if the rail falls out of regulation, the board resets or the module overheats.
+The provisional 5 V peak budget is **2.8 A**: 1.2 A per servo plus 0.4 A for the S2. These are planning allowances, not measured specifications for the owned servos. The converter's suitability remains unverified even if its listing or IC says “3 A.” Check both servos starting and reversing together, voltage at the S2/servo connectors, and converter temperature at the full pack and at 7 V input on a bench supply. A multimeter can miss short dips; use a scope if available. Do not hold the servos stalled. Reduce the load or replace the converter if the rail falls out of regulation, the board resets or the module overheats.
 
-A 7 V firmware stop commands calibrated neutral only. This module has **no verified low-battery cutoff**, and a total-pack reading cannot detect every weak-cell condition. Monitor each cell during supervised use and **manually unplug XT30 when stopping or finishing a run**. A per-cell alarm is useful monitoring, not an automatic disconnect unless specifically rated and wired to perform that function. Use a compatible external 2S LiPo balance charger with the correct 300 mAh pack charging settings; never use a 1S TP4056 charger for this pack.
+## Manual battery checks - no onboard low-voltage protection
 
-### Switched battery sensing
+The current POC deliberately removes the battery-sensing circuit. **The receiver does not measure battery voltage or stop for a low battery.** There is no battery value to calibrate, no battery telemetry, no alarm and no automatic low-voltage disconnect. The fuse protects against sufficiently large overcurrent; it cannot protect against over-discharge. Joystick release and lost-link stopping still work, but they do not disconnect power.
 
-With the specified resistor values:
+Use your multimeter before and between short, attended runs, with the **XT30 unplugged from the car**:
 
-```text
-V_ADC  = V_pack × 33 / (100 + 33)
-V_pack = V_ADC × 133 / 33
+1. Select DC volts with leads in COM and V, never the current socket/range. Prefer an insulated mating balance breakout so probe tips cannot short adjacent contacts.
+2. Identify the balance connector's three taps: pack negative, cell midpoint, pack positive. Do not assume a physical left/right orientation or wire colors. Across the two end taps is total pack voltage; each adjacent pair measures one cell. Verify polarity and use the actual pack/charger instructions to identify contacts.
+3. Record **each cell separately**. A healthy total voltage alone can hide a depleted cell. Start with a correctly balance-charged pack and use very short trials while establishing real runtime.
+4. For this attended POC, **end the session when either cell is at or below 3.7 V at rest**, or earlier if the pack maker specifies a higher limit. This is a deliberately early project stopping point, not a manufacturer minimum or a guarantee against dips during a run. If either cell is already 3.5 V or lower, do not do another run; recharge appropriately. Do not run down to the absolute discharge limit.
+5. Keep XT30 disconnected whenever parked, measuring, charging or storing. Stop immediately for abnormal heating, puffing, unexpected slowing or resets; do not use those symptoms as a normal low-battery indicator.
 
-8.40 V pack -> 2.084 V ADC
-7.00 V pack -> 1.737 V ADC
-```
-
-At 8.4 V, divider current is approximately 63 µA. Its Thevenin resistance is about 24.8 kΩ; the 100 nF capacitor gives about 2.5 ms time constant. Allow settling and calibrate ADC readings against a multimeter at multiple pack voltages. Configure an ADC input range that covers at least 2.1 V; do not assume a raw count maps linearly to an ideal 3.3 V reference. The firmware's ratio is `133.0 / 33.0`; scale and offset remain calibration values.
-
-The **mandatory high-side sensing switch** prevents the battery from continuously feeding the ADC when regulator output or MCU power disappears. It is two through-hole transistors and four extra resistors; mount it on a small insulated perfboard beside the divider. It is not a motor power switch.
-
-```text
-VBAT_SW -----------+----- QP source (BS250P)
-                   |            drain -------- VBAT_SENSE -- R1 100k -- BAT_ADC -- GPIO3
-               R_GATE 100k                                            |
-                   |                                                 +-- R2 33k -- GND
-SENSE_GATE --------+----- QP gate                                     +-- C1 100nF -- GND
-                   |
-             R_GATE_SER 10k
-                   |
-             QN collector (2N3904)
-GPIO7 -- R_BASE 10k -- QN base
-                          |
-                      R_BASE_PD 100k
-                          |
-GND ----------------------+-- QN emitter
-```
-
-With GPIO7 LOW, unpowered or high-impedance during reset, QN is off and R_GATE pulls the P-MOS gate to its source, turning QP off. When GPIO7 is HIGH, QN pulls the gate down and QP connects the divider. At 8.4 V input, the gate network draws approximately 76 µA and gives about −7.5 V gate-to-source drive. Divider load is only about 63 µA maximum. These are circuit calculations, not measurements.
-
-Firmware must initialize GPIO7 LOW, set it HIGH to measure, wait **at least 20 ms**, sample/calibrate GPIO3, then return GPIO7 LOW. A very low sample with sense enabled is a fault, not permission to drive. During a terminal stop, leave GPIO7 LOW. The RC filter discharges after sensing turns off; verify the actual ADC node falls near ground within 20 ms and remains low with the MCU supply off and the battery feed still present. Off leakage is not mathematically zero, and the small capacitor retains transient charge; this change removes the sustained battery-fed path. Physical XT30 disconnection is still the normal storage OFF.
-
-For the selected **Diodes BS250P**, the manufacturer's illustrated leads are labeled **D, G, S** on its first-page package drawing. Use that exact drawing orientation; do not substitute a BS250 from another maker by appearance. Its limits are −45 V drain/source, ±20 V gate/source and −230 mA continuous, comfortably above this sensing circuit's electrical stress. Its specified off leakage is at most 500 nA at 25°C/−25 V, which would develop only 16.5 mV across R2. [Diodes datasheet](https://www.diodes.com/datasheet/download/BS250P.pdf)
-
-For **onsemi 2N3904BU**, the selected manufacturer's pin numbering is **1 emitter, 2 base, 3 collector**; follow the package-view diagram before soldering. It is rated for 40 V collector/emitter and 200 mA, while this circuit sinks well below 1 mA. [onsemi datasheet](https://www.onsemi.com/download/data-sheet/pdf/2n3904-d.pdf)
-
-BS250P was marked **NRND / last-time-buy** in the original research. Check availability before ordering; a substitute requires a new pinout, leakage and drive review. [Manufacturer lifecycle](https://www.diodes.com/part/view/BS250P)
-
-This circuit measures total pack voltage, not individual cells. It is not a battery protector or charger. **The owned buck has no verified battery undervoltage cutoff.** There is no assumed hardware backup to the firmware stop.
-
-The normal firmware stop is **7.0 V total pack voltage**: it disarms and commands calibrated servo neutral; it does **not** disconnect power. A sustained out-of-range reading latches driving off until reset. The buck, S2 and servos remain connected and continue consuming energy. Confirm the current firmware behavior during commissioning, monitor both cells with a compatible per-cell monitor or by direct measurement during supervised use, and manually unplug XT30 immediately when stopping. Total pack voltage cannot establish that both cells are healthy. Do not rely on a low battery causing an MCU reset to stop safely. Firmware calibration flags remain false until readings and neutral behavior have been verified.
+Periodic checks cannot catch a rapid drop or weak cell between measurements. No safe fixed runtime has been measured for this build. If you want longer runs without these interruptions, add a suitable per-cell monitor/cutoff in a future revision. Use a compatible external **2S LiPo balance charger**, correct pack settings and the manufacturer's instructions; never a 1S TP4056 charger. For OTA, start with a freshly balance-charged pack, keep wheels lifted and USB unplugged; firmware does not check the battery before or during an update.
 
 ## Optional handheld transmitter
 
@@ -181,23 +125,23 @@ Use these **signal names**, locating the exact package pins from TI's diagram: G
 
 ## Staged bench test
 
-1. **Inspect unpowered.** Confirm actual board labels, battery connector polarity, the two converter input/output pairs, transistor pinouts, resistor values and capacitor polarity. Check for supply-to-ground shorts. Leave wheels off and keep the XT30 disconnect accessible.
-2. **Flash using isolated USB power.** Unplug the battery, remove `J_PWR`, and unplug both servo signals. Flash the S2 receiver and configure your private Wi-Fi settings for browser driving. A second controller and pairing keys are needed only for optional ESP-NOW mode. Calibration flags deliberately remain false until tested; do not enable them merely to force motion.
-3. **Commission the buck alone.** Disconnect every load and the ADC harness. Apply a current-limited input supply within the 2S operating range, identify the output-adjustment potentiometer, and set `OUT+` to `OUT−` to 5.00 V. Recheck across the expected input range, including near 7 V. No battery-cutoff setting or exposed enable/power-good interface is assumed for this owned module.
-4. **Commission the receiver and divider.** Remove USB, restore `J_PWR`, and use the current-limited supply. With the ADC lead disconnected from the MCU, verify GPIO7 LOW/reset gives a near-zero sensing node and GPIO7 HIGH gives about 2.084 V for an 8.4 V input after settling. Then connect GPIO3 and calibrate at several voltages. Verify sensing returns off when MCU power is removed while the raw battery feed remains present. Keep servo outputs disconnected.
+1. **Inspect unpowered.** Confirm actual board labels, battery connector polarity, the two converter input/output pairs, capacitor polarity. Check for supply-to-ground shorts. Leave wheels off and keep the XT30 disconnect accessible.
+2. **Flash using isolated USB power.** Unplug the battery, remove `J_PWR`, and unplug both servo signals. Flash the S2 receiver and configure your private Wi-Fi settings for browser driving. A second controller and pairing keys are needed only for optional ESP-NOW mode. Servo calibration deliberately remains false until tested; do not enable it merely to force motion.
+3. **Commission the buck alone.** Disconnect every load. Apply a current-limited input supply within the 2S operating range, identify the output-adjustment potentiometer, and set `OUT+` to `OUT−` to 5.00 V. Recheck across the expected input range, including near 7 V. No battery-cutoff setting or exposed enable/power-good interface is assumed for this owned module.
+4. **Commission the receiver.** Remove USB, restore `J_PWR`, and use the current-limited supply. Confirm 5.00 V at VBUS and the correct firmware configuration for this manual-check build. Leave GPIO3 and GPIO7 unwired. Keep servo outputs disconnected until the next step.
 5. **Commission one servo at a time.** Confirm continuous rotation, actual neutral and direction using small pulse offsets with the shaft unloaded. Missing PWM is not a guaranteed stop for every clone. Verify 3.3 V signal compatibility and keep the power disconnect reachable. Record each neutral before enabling drive.
-6. **Check browser control with wheels lifted.** Open `http://spy-car.local/` on the same configured home Wi-Fi. Verify startup, calibrated neutral, joystick release, tab hiding and Wi-Fi loss. Confirm forward/reverse and both turn directions. A fresh hold must be required after reconnecting; both calibration gates must be satisfied. Optional ESP-NOW mode separately requires paired keys and handheld checks.
-7. **Verify low-pack behavior using an adjustable supply.** Sweep across the 7.0 V threshold without deliberately discharging a pack. Confirm disarm, calibrated neutral and the sustained-fault latch. Confirm that this does not switch off the supply: manually disconnect it afterward. Separately test loss of MCU power with the raw sensing feed still present; verify the ADC node returns near ground.
-8. **Validate realistic combined load.** Exercise both servos and Wi-Fi together, measure current, observe supply dips and check the buck's temperature in its intended mounting. Test near the stopping threshold as well as at full input voltage. The 2.8 A budget and external capacitor values are provisional until these checks pass.
+6. **Check browser control with wheels lifted.** Open `http://spy-car.local/` on the same configured home Wi-Fi. Verify startup, calibrated neutral, joystick release, tab hiding and Wi-Fi loss. Confirm forward/reverse and both turn directions. A fresh hold must be required after reconnecting; servo calibration must be verified. Optional ESP-NOW mode separately requires paired keys and handheld checks.
+7. **Check the manual-check workflow.** Confirm the receiver does not claim battery voltage or low-battery protection. Practice unplugging XT30 and measuring both cells without bridging contacts. Record an initial short-run duration and per-cell voltages; no runtime estimate is a substitute for measurements.
+8. **Validate realistic combined load.** Exercise both servos and Wi-Fi together, measure current, observe supply dips and check the buck's temperature in its intended mounting. Test near 7 V input as well as at full input voltage. The 2.8 A budget and external capacitor values are provisional until these checks pass.
 9. **Finish and test briefly.** Insulate and strain-relieve joints, keep screws/sharp edges away from the pouch, and perform a short supervised smooth-floor run. Record each cell voltage and measured runtime. Unplug XT30 after every run and remove the pack for balance charging or storage.
 
-Actual servo current, neutral, logic compatibility, ADC calibration, power-off isolation, radio failsafe and converter thermal/load performance remain hardware validation tasks. CAD renders and successful code compilation do not establish these results.
+Actual servo current, neutral, logic compatibility, USB power isolation, radio failsafe and converter thermal/load performance remain hardware validation tasks. CAD renders and successful code compilation do not establish these results.
 
 
 ## Fuse photograph and the under-deck components
 
 The illustrated guide shows a Littelfuse PICO II 251 family reference photograph on pages 1 and 6. A compact **candidate**, not a tested final selection, is [0251004.MXL](https://www.digikey.com/en/products/detail/littelfuse-inc/0251004-MXL/700745): 4 A very fast acting, rated 125 V DC with 300 A DC interrupt capacity. The [manufacturer drawing](https://www.littelfuse.com/assetdocs/littelfuse_fuse_251_253_datasheet.pdf?assetguid=f47a0bb7-8ede-4679-9646-7114c3787688) gives a 7.11 mm body length and 2.80 mm maximum diameter. Leave additional room for leads, insulation and strain relief. Validate the candidate against measured inrush, wiring and prospective fault current. This is not an instantaneous 4 A limiter.
 
-Wire this non-polar axial fuse in series near the battery connector in the **positive harness lead**, before the buck and sensing branch. Solder and insulate it with strain relief; an axial part does not need a cartridge holder. It is not resettable. The updated Blender fuse follows the nominal 7.11 mm body length and 2.80 mm maximum diameter, with 0.64 mm leads. Lead bends and insulation are assembly allowances; the retained loose carrier and strain relief need a physical fit check.
+Wire this non-polar axial fuse in series near the battery connector in the **positive harness lead**, before the buck. Solder and insulate it with strain relief; an axial part does not need a cartridge holder. It is not resettable. The updated Blender fuse follows the nominal 7.11 mm body length and 2.80 mm maximum diameter, with 0.64 mm leads. Lead bends and insulation are assembly allowances; the retained loose carrier and strain relief need a physical fit check.
 
-The small under-deck perfboard holds the switched battery-voltage sensing circuit above. The divider scales battery voltage for GPIO3 and the two-transistor circuit lets GPIO7 enable sensing without continuously feeding an unpowered ADC. This supports the existing firmware's calibrated low-pack motion stop; it is not required simply to generate servo commands, and omitting it would require revising the current firmware and battery-monitoring plan. The nearby capacitors smooth supply transients. Neither these parts nor the fuse provide charging or an automatic low-voltage power disconnect.
+The former battery-sensing perfboard and all of its parts have been removed. The retained 220 µF bulk capacitor and 100 nF bypass capacitor are wired directly into the power harness at the servo split and S2 supply respectively. Neither these capacitors nor the fuse provide charging or an automatic low-voltage power disconnect.

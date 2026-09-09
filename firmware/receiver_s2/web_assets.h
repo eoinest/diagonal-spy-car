@@ -17,7 +17,6 @@ static const char CONTROL_INDEX[] PROGMEM = R"SPYCAR(<!doctype html>
     <div class="status-row">
       <span id="connection-dot" class="status-dot" aria-hidden="true"></span>
       <p id="status" role="status" aria-live="polite">Connecting…</p>
-      <span id="battery">— V</span>
     </div>
     <div class="controls">
       <div id="joystick" class="joystick" role="group" aria-label="Hold and drag joystick" aria-disabled="true" aria-describedby="drive-hint">
@@ -40,7 +39,6 @@ static const char CONTROL_JS[] PROGMEM = R"SPYCAR(/* Same-host controller. Every
   const knob = document.getElementById('knob');
   const status = document.getElementById('status');
   const dot = document.getElementById('connection-dot');
-  const battery = document.getElementById('battery');
   const speed = document.getElementById('speed');
   const driveState = document.getElementById('drive-state');
   const SEND_MS = 50, ACK_MS = 180, RECONNECT_MS = 750;
@@ -91,7 +89,6 @@ static const char CONTROL_JS[] PROGMEM = R"SPYCAR(/* Same-host controller. Every
     socket = null; ready = false; token = null;
     clearPending(); cancelGesture(false);
     status.textContent = message + ' · reconnecting…';
-    battery.textContent = '— V';
     if (old && old.readyState < WebSocket.CLOSING) old.close();
     scheduleReconnect();
   }
@@ -146,7 +143,6 @@ static const char CONTROL_JS[] PROGMEM = R"SPYCAR(/* Same-host controller. Every
       else if (held && phase === 'arming' && acknowledged && acknowledged.centeredHold &&
                acknowledged.gesture === gesture && data.armed) phase = 'driving';
       status.textContent = typeof data.reason === 'string' && data.reason ? data.reason : ready ? 'Ready' : 'Not ready';
-      battery.textContent = typeof data.battery === 'number' && Number.isFinite(data.battery) ? `${data.battery.toFixed(2)} V` : '— V';
       render(); pump();
     });
     current.addEventListener('close', () => { if (socket === current) disconnect('Disconnected'); });
@@ -211,7 +207,6 @@ body { margin: 0; overscroll-behavior: none; }
 .status-dot { width: 5px; height: 5px; flex-shrink: 0; border-radius: 50%; background: #ccc; }
 .status-dot.ready { background: #333; }
 #status { font-size: 11px; font-weight: 400; color: #888; margin: 0; }
-#battery { margin-left: auto; color: #999; font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .controls { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 28px 0; }
 .joystick {
   position: relative;

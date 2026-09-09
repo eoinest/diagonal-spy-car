@@ -78,8 +78,8 @@ line([(750,510),(750,428),(910,428),(910,638),(930,638)],BLUE,2);text(760,430,'G
 text(918,343,'S',10,ORANGE,True);text(918,641,'S',10,BLUE,True)
 box(40,470,470,130);text(56,484,'At the 5 V / GND split',16,bold=True)
 para(56,512,'At the split: <b>220 uF / 10 V electrolytic</b> (+ to 5 V; striped negative to GND). At the S2, <b>after J_PWR:</b> add <b>100 nF ceramic across VBUS and GND</b> with short leads. Preserve the buck\'s onboard capacitor.',435,13)
-box(40,615,470,143);text(56,629,'Battery sensing: included on page 4',16,bold=True)
-para(56,659,'The existing receiver firmware also needs <b>GPIO3 + GPIO7</b> and the switched divider. It stops motion at 7.0 V; it does <b>not</b> disconnect the pack. Unplug after stopping.',433,13)
+box(40,615,470,143);text(56,629,'Manual battery checks: page 4',16,bold=True)
+para(56,659,'No sensing perfboard or GPIO3/GPIO7 wires. The car has <b>no battery reading, alarm or low-voltage stop</b>. Check each cell with a meter between short runs and unplug when parked.',433,13)
 text(40,778,'* Fuse rating is provisional. Photos show reference servos; wire functions, not plug orientation, define the connections.',11,MUTED)
 end()
 
@@ -91,9 +91,7 @@ coords={'18':(1239,833),'16':(1238,930),'GND':(1238,1027),'VBUS':(1238,1126)}
 labels={'18':('GPIO18 > right signal',BLUE),'16':('GPIO16 > left signal',ORANGE),'GND':('GND > ground bus',GND),'VBUS':('VBUS > buck 5 V via join',RED)}
 for k,(px,py) in coords.items():
     x,y=125+px/4,190+py/4; lab,col=labels[k];dot(x,y,col,5);line([(x,y),(480,y)],col);text(488,y-7,lab,12,col,True)
-for k,py in [('3',535),('7',729)]:
-    x,y=125+362/4,190+py/4;dot(x,y,GREEN,5);line([(x,y),(85,y)],GREEN);text(55,y-28,'GPIO'+k,12,GREEN,True)
-text(62,568,'Left GPIO3 / GPIO7: sensing only (page 4)',12,GREEN)
+text(62,568,'Only four S2 connections: VBUS, GND, GPIO16 and GPIO18.',12,GREEN)
 text(62,594,'Use GPIO labels. Inner-row GPIO17 is NOT the right servo pin.',12,INK,True)
 box(715,140,445,490);text(735,157,'YOUR LARGE BUCK: SAME ORIENTATION',15,bold=True)
 img('owned-buck.jpg',860,204,159,300)
@@ -120,31 +118,19 @@ box(40,680,1120,105,fill='#FFF3DF');text(57,692,'Battery handling and fit',16,bo
 para(57,721,'12 mm is the published nominal pack height, not measured installed height: leave room for padding and lead bends. This hobby pack has no verified protection PCB. Neither owned converter provides charging, balancing or a suitable LiPo cutoff. Use a 2S balance charger and unplug the pack after each run.',1085,14)
 end()
 
-header(4,'Battery sensing for the existing firmware','A small insulated perfboard carries these low-current parts; motor current stays in the main harness.')
-box(40,145,1120,360)
-# Functional schematic with explicit named transistor terminals; no ambiguous package pin ordering.
-text(60,163,'VBAT_SW = battery + AFTER fuse',13,RED,True)
-line([(70,206),(455,206),(455,225),(470,225)],RED,2);dot(180,206,RED);dot(400,206,RED)
-box(470,180,155,85);text(483,189,'QP: BS250P',15,bold=True);text(477,220,'S',13);text(603,220,'D',13);text(538,245,'G',13)
-line([(625,225),(727,225)],GREEN,2);box(727,211,100,28);text(738,216,'R1 100k',13)
-line([(827,225),(1095,225)],GREEN,2);dot(925,225,GREEN);text(983,195,'GPIO3 / ADC',14,GREEN,True)
-line([(925,225),(925,280)],GREEN);box(893,280,65,55);text(900,287,'R2',12);text(900,305,'33k',12)
-line([(925,335),(925,450)],GND);line([(925,450),(1080,450)],GND)
-line([(1040,225),(1040,298)],GREEN);dot(1040,225,GREEN);line([(1022,298),(1058,298)],INK,2);line([(1022,309),(1058,309)],INK,2);line([(1040,309),(1040,450)],GND);dot(1040,450,GND)
-text(1050,315,'C1',12);text(1050,333,'100 nF',12);text(968,459,'GND',12,GND,True)
-line([(400,206),(400,290)],RED);box(350,290,100,32);text(360,297,'R_GATE 100k',11)
-line([(400,322),(400,352),(548,352),(548,265)],INK);dot(548,352)
-line([(548,352),(680,352)],INK);box(680,337,130,30);text(689,345,'R_GATE_SER 10k',11)
-line([(810,352),(842,352),(842,392),(715,392)],INK)
-box(550,377,165,80);text(560,382,'QN: 2N3904BU',13,bold=True);text(558,407,'B',12);text(695,393,'C',12);text(629,437,'E',12)
-line([(635,457),(635,480),(1080,480)],GND);line([(1080,450),(1080,480)],GND)
-text(65,376,'GPIO7',14,GREEN,True);line([(65,410),(210,410)],GREEN);box(210,395,120,30);text(220,403,'R_BASE 10k',11)
-line([(330,410),(550,410)],GREEN);dot(450,410,GREEN);line([(450,410),(450,445)],GREEN)
-box(375,445,135,25);text(383,450,'R_BASE_PD 100k',11);line([(450,470),(450,480),(635,480)],GND);dot(635,480,GND)
-box(40,525,550,260);text(58,543,'Parts and terminal identification',18,bold=True)
-para(58,582,'<b>QP:</b> Diodes BS250P P-channel MOSFET: source to raw fused battery, drain to R1, gate to the resistor network shown.<br/><b>QN:</b> onsemi 2N3904BU NPN: emitter to GND, collector to R_GATE_SER, base to R_BASE.<br/><b>Resistors:</b> 3 x 100k, 2 x 10k, and 1 x 33k; use 1% for R1/R2. C1: 100 nF ceramic, 16 V or higher.<br/>Match the exact maker\'s package-view drawing before soldering; transistor terminal letters are not left-to-right lead positions.',510,13)
-box(610,525,550,260);text(628,543,'What it does - and what it cannot do',18,bold=True)
-para(628,582,'GPIO7 HIGH enables sensing; wait at least 20 ms before sampling GPIO3. Return GPIO7 LOW afterward.<br/><b>8.4 V pack = about 2.084 V at GPIO3.</b><br/>The switching stage avoids a sustained battery-fed ADC path when the S2 is off; do not replace it with a permanently connected divider.<br/>Browser-drive firmware needs servo-neutral and battery calibration before arming. Pairing is only for the optional handheld. Its 7.0 V stop only commands neutral. Pack voltage does not reveal an individually weak cell; monitor both cells and unplug promptly.',510,13)
+header(4,'Manual battery checks','The perfboard is removed. GPIO3 and GPIO7 stay unwired. The car cannot detect a low battery.')
+box(40,145,1120,120,fill='#FFF3DF')
+text(58,161,'No automatic low-voltage protection',21,bold=True)
+para(58,201,'The fuse opens on sufficiently large overcurrent, <b>not</b> low voltage. Firmware has no pack reading, low-battery alarm or voltage-triggered motion stop. A joystick stop leaves the electronics powered. <b>Unplug XT30 whenever parked.</b>',1080,14)
+box(40,285,550,300)
+text(58,302,'Measure the two cells separately',20,bold=True)
+para(58,343,'Unplug XT30 from the car. Set the multimeter to <b>DC volts</b>, leads in <b>COM and V</b>, never the current socket/range. Prefer an insulated mating balance breakout.<br/><br/>The three balance taps are pack negative, cell midpoint and pack positive. Each adjacent pair measures one cell; the two end taps measure the whole pack.<br/><br/><b>Verify tap order and polarity on your pack.</b> Do not assume left/right orientation or colors. Never bridge adjacent contacts with metal probe tips.',510,14)
+box(610,285,550,300)
+text(628,302,'Short, attended trials',20,bold=True)
+para(628,343,'Start with a correctly balance-charged pack. Check both cells before and between very short runs while establishing runtime.<br/><br/><b>End the session at or below 3.7 V per cell at rest</b>, or earlier if the pack instructions require. This is an early project stopping point, not a battery minimum or a guarantee against dips during use. At 3.5 V or lower, do not do another run.<br/><br/>Unplug promptly for abnormal heat, puffing, slowing or resets. Do not use those symptoms as the normal battery gauge.',510,14)
+box(40,605,1120,180,fill='#E8F3F0')
+text(58,622,'What a multimeter cannot do',20,bold=True)
+para(58,662,'Periodic checks cannot catch a weak cell or rapid voltage drop between measurements. Total pack voltage can hide an individually depleted cell. No safe fixed runtime has been measured for this car.<br/><br/><b>Before Wi-Fi updates:</b> use a freshly balance-charged pack and lift the wheels. Firmware does not check voltage before or during upload. Longer unattended operation needs a different protection plan.',1080,14)
 end()
 
 header(5,'Build, check and use','No custom PCB. This is a soldered prototype harness, not a tested plug-and-play electrical assembly.')
@@ -153,9 +139,9 @@ steps=[
 '1. Battery unplugged: solder the mating XT30 lead through a provisional 4 A inline fuse to IN+; negative to IN-. Insulate every joint.',
 '2. Leave all loads disconnected. Power the buck, read OUT+ to OUT- with a multimeter and adjust to 5.00 V. Unplug before adding wires.',
 '3. Split OUT+ and OUT- into separate servo and S2 branches. Add the capacitors. Fit J_PWR as a removable insulated connector in the S2 VBUS feed.',
-'4. Add the page 4 sensing circuit. Check the ADC voltage and off-state behavior before connecting GPIO3. Calibrate against a meter.',
+'4. Leave GPIO3 and GPIO7 unwired. There is no sensing circuit. Check both cells with a meter as shown on page 4.',
 '5. With wheels lifted, test each servo, then both together. Check 5 V stability, resets and board temperature at 8.4 V and 7.0 V input. Do not hold a servo stalled.',
-'6. Verify neutral on signal loss and the calibrated 7.0 V stop. Test voltage thresholds with an adjustable supply, not by deeply discharging the battery.'
+'6. Verify calibrated neutral on joystick release and signal loss. Firmware cannot detect a low battery. Establish short run intervals with manual cell checks.'
 ]
 y=200
 for s in steps:y+=para(58,y,s,513,12.5)+10
@@ -163,14 +149,14 @@ box(610,145,550,198,fill='#FFF3DF');text(628,162,'Before connecting USB to the S
 para(628,199,'<b>Unplug the battery, remove J_PWR, and disconnect both servo signal wires.</b> Ground may remain connected. The S2 VBUS header is connected to USB power: battery disconnection alone can still let USB feed the servos or buck backward through the 5 V wire. Restore J_PWR and signals only after USB is removed.',510,14)
 box(610,363,550,174);text(628,380,'Charge outside the car',18,bold=True)
 para(628,417,'Use a <b>2S LiPo balance charger</b> set for 4.20 V/cell (8.40 V pack). A conservative 1C setting for 300 mAh is <b>0.30 A</b>, subject to pack instructions. Connect its XT30 main lead and 3-pin balance lead as the charger requires. A 1S USB/TP4056 charger is not compatible. Charge attended on a nonflammable surface.',510,13)
-box(40,556,1120,88,fill='#E8F3F0');para(58,572,'<b>POC battery checks:</b> check both cells with your multimeter before and between short, attended test runs. Do not bridge adjacent balance contacts with probe tips. Stop and unplug when firmware stops; do not keep restarting to drain the pack further. Manual checks and pack-voltage sensing do not provide automatic power cutoff.',1080,13)
+box(40,556,1120,88,fill='#E8F3F0');para(58,572,'<b>POC battery checks:</b> check both cells with your multimeter before and between short, attended test runs. Do not bridge adjacent balance contacts with probe tips. End the session when either cell reaches 3.7 V at rest. Unplug when parked. Firmware has no battery sensing, alarm or low-voltage stop; periodic checks cannot guarantee protection between measurements.',1080,13)
 text(40,660,'Sources, image credits and build files',17,bold=True)
-sources=[('WEMOS: S2 Mini photo, board pinout and schematic','https://docs.wemos.cc/en/latest/s2/s2_mini.html'),('TI: LM2596 buck datasheet','https://www.ti.com/lit/ds/symlink/lm2596.pdf'),('TI: TPS63070 buck-boost datasheet','https://www.ti.com/lit/ds/symlink/tps63070.pdf'),('TowerPro: MG90S reference image (not proof of continuous rotation)','https://towerpro.com.tw/product/mg90s-3/'),('Diodes: BS250P terminal drawing','https://www.diodes.com/datasheet/download/BS250P.pdf'),('onsemi: 2N3904BU terminal drawing','https://www.onsemi.com/download/data-sheet/pdf/2n3904-d.pdf')]
+sources=[('WEMOS: S2 Mini photo, board pinout and schematic','https://docs.wemos.cc/en/latest/s2/s2_mini.html'),('TI: LM2596 buck datasheet','https://www.ti.com/lit/ds/symlink/lm2596.pdf'),('TI: TPS63070 buck-boost datasheet','https://www.ti.com/lit/ds/symlink/tps63070.pdf'),('TowerPro: MG90S reference image (not proof of continuous rotation)','https://towerpro.com.tw/product/mg90s-3/')]
 for i,(lab,url) in enumerate(sources):link(40+(i//3)*565,694+(i%3)*24,lab,url,11)
 text(40,774,'Battery photo: Lumenier / RaceDayQuads (page 3). Converter and connector photos: user. Third-party images are not MIT-licensed.',10,MUTED)
 end()
 
-header(6,'What is underneath the deck?','The fuse protects the input wiring; the small perfboard measures battery voltage. Neither is a charger.')
+header(6,'What is underneath the deck?','The sensing perfboard is removed. The fuse and power capacitors remain; none is a charger.')
 box(40,145,545,395)
 text(58,162,'F_IN: a compact fuse candidate',20,bold=True)
 img('fuse-pico-251.jpg',68,219,180,180)
@@ -182,7 +168,7 @@ link(58,495,'Littelfuse: specifications and mechanical drawing','https://www.lit
 box(610,145,550,395)
 text(628,162,'Why these extra parts are here',20,bold=True)
 para(628,207,'<b>Fuse:</b> opens the battery-positive feed during a sufficiently large overcurrent, such as a wiring short. It is one-time use; replace after finding the fault. It is not low-battery protection or a precise 4 A current limiter.',510,14)
-para(628,316,'<b>Perfboard:</b> a small soldering board holding the page 4 voltage divider and two-transistor enable circuit. GPIO3 reads scaled battery voltage; GPIO7 enables the reading. This supports the existing firmware monitoring. It carries no servo current.',510,14)
+para(628,316,'<b>No perfboard:</b> the voltage divider, transistors, sensing resistors and ADC filter are removed. There are no GPIO3 or GPIO7 wires. Battery checks are manual; no electronic low-voltage protection remains.',510,14)
 para(628,438,'<b>Capacitors:</b> the nearby 220 uF and 100 nF parts help smooth the 5 V supply. They do not replace an adequately sized converter.',510,14)
 box(40,560,1120,115,fill='#E8F3F0')
 text(58,574,'Where the fuse connects',17,bold=True)
@@ -190,8 +176,8 @@ text(62,619,'XT30 harness +',15,RED,True)
 line([(228,630),(370,630)],RED,3)
 box(370,612,135,34);text(395,617,'F_IN fuse',15,bold=True)
 line([(505,630),(670,630)],RED,3)
-text(682,619,'VBAT_SW: buck IN+ and page 4 sensing feed',14,RED,True)
-para(58,690,'<b>Assembly:</b> put the fuse close to the battery connector in the positive harness lead. This axial candidate is soldered inline and insulated with strain relief; it does not require a bulky cartridge holder. Either fuse lead can face the battery. Keep motor current out of the sensing perfboard.',1080,13)
+text(682,619,'VBAT_SW: fused battery positive to buck IN+',14,RED,True)
+para(58,690,'<b>Assembly:</b> put the fuse close to the battery connector in the positive harness lead. This axial candidate is soldered inline and insulated with strain relief; it does not require a bulky cartridge holder. Either fuse lead can face the battery. Keep motor current in the insulated power harness, away from S2 GPIOs.',1080,13)
 para(58,751,'<b>Still provisional:</b> validate 4 A against measured startup current, wire size and fault current. The updated Blender body follows the axial candidate; lead bends, insulation and loose cradle retention still need a fit check. Photo: Littelfuse / DigiKey, reference image supplied with this product listing.',1080,11,MUTED)
 end()
 

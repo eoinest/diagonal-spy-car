@@ -111,9 +111,9 @@ for o in scene.objects:
             for before,after in zip(star_old,[plus,minus]):
                 if (p.co-before).length<.02:p.co=after
             # Keep power service loops outside the battery's occupied volume.
-            if any(tag in o.name for tag in ('servo GPIO','Bulk ','Common logic','Sense ground')) and 28<p.co.z<40 and -11<=p.co.y<=6 and abs(p.co.x)<24.8:
+            if any(tag in o.name for tag in ('servo GPIO','Bulk ','Common logic')) and 28<p.co.z<40 and -11<=p.co.y<=6 and abs(p.co.x)<24.8:
                 p.co.x=27 if p.co.x>=0 else -27
-# Use explicit outside-deck descent lanes, then cross below the perfboard.
+# Use explicit outside-deck descent lanes, then cross below the deck.
 # Merely moving a control point outside the pouch can still leave the curve through it.
 def route_existing(name, points):
     obj=scene.objects.get(name)
@@ -149,7 +149,6 @@ for name,loc,junction,x in [('Bulk positive to distribution',(14,-4.5,21.5),plus
                            ('Bulk negative to distribution',(16,-4.5,21.5),minus,28)]:
     route_existing(name,[loc,(loc[0],-6,21.5),(x,-6,22),(x,-13,34),junction])
 route_existing('Common logic ground',[minus,(28,-13,34),(28,9,34),(-6.35,11.57,30.86)])
-route_existing('Sense ground',[(-8,-4,19.3),(-8,-7,17),(-27,-7,17),(-27,-13,33.5),minus])
 route_existing('PW | 5V_BUS to J_PWR socket',[plus,(27,-13,35),(27,8,35),(12,8,34),(4.7,8,34)])
 # Fix main negative route so it goes around, rather than across, buck components.
 negative=scene.objects.get('VBAT negative to buck')
@@ -157,9 +156,6 @@ if negative:
     pts=[(2.5,10.4,42.7),(-12,12,43),(-27,11,40),(-29,-12,33),(-27,-35,33),(-19.9,-33.9,30.86)]
     negative.data.splines.clear();sp=negative.data.splines.new('BEZIER');sp.bezier_points.add(len(pts)-1)
     for p,co in zip(sp.bezier_points,pts):p.co=co;p.handle_left_type='AUTO';p.handle_right_type='AUTO'
-# Sense feed branches on the fused side, not from the center of the fuse body.
-sense=scene.objects.get('Sense fused VBAT feed')
-if sense:sense.data.splines[0].bezier_points[0].co=(-15,9,17)
 # Small capacitors now have visible lead connections. The bypass follows J_PWR at the MCU.
 bypass=scene.objects.get('100nF bus bypass')
 if bypass:
@@ -167,18 +163,6 @@ if bypass:
     bypass['electrical_role']='100 nF between S2_VBUS after J_PWR and GND, close to the board pads'
 wire('100nF bypass positive lead',[(-8.8,14.3,32.3),(-8.89,12.8,32),(-8.89,11.57,30.86)],'metal',.16,'S2_VBUS')
 wire('100nF bypass ground lead',[(-7.2,14.3,32.3),(-6.35,12.8,32),(-6.35,11.57,30.86)],'metal',.16,'GND')
-wire('ADC filter signal lead',[(-.6,4.5,19.4),(-.6,4.5,19.25)],'metal',.16,'BAT_ADC')
-wire('ADC filter ground lead',[(.6,4.5,19.4),(.6,4.5,19.25)],'metal',.16,'GND')
-# Correct the pad pitch, but do not pretend these component positions form a solderable circuit.
-for o in list(scene.objects):
-    if o.name.startswith('Perfboard solder pad'):bpy.data.objects.remove(o,do_unlink=True)
-for x in range(-3,4):
-    for y in range(-2,3):
-        o=cyl('Perfboard 2.54mm pad',(x*2.54,y*2.54,19.25),.55,.1,'metal','Z')
-        o['model_role']='Pad pitch reference only; circuit interconnections and hole drilling are not modeled'
-for o in scene.objects:
-    if 'perfboard' in o.name.lower():o['circuit_status']='Placement reference, not a solderable layout. Use electronics/wiring.md and PDF page 4 for net connections.'
-
 # Synchronize changed harness routes and packages into the existing exploded view.
 exploded=bpy.data.scenes['02 EXPLODED']
 for original in scene.objects:
@@ -194,10 +178,6 @@ for original in scene.objects:
     offset=Vector((-32,30,70)) if any(t in original.name for t in ('XT30','balance','Balance','Unplug','J_PWR')) else Vector((0,0,25))
     copy.location+=offset
     if copy.type=='CURVE':copy.hide_render=True
-# Remove old pad copies from exploded; new copies above use correct pitch.
-for o in list(exploded.objects):
-    if o.name.startswith('Perfboard solder pad'):bpy.data.objects.remove(o,do_unlink=True)
-
 bpy.context.view_layer.update()
 assert all(signature(scene.objects[name])==digest for name,digest in protected.items()), 'Unexpected change to protected mechanical/component geometry'
 def bounds(o):
@@ -220,14 +200,13 @@ for a in rigid:
         vol=overlap(a,b)
         if vol>.03:collisions.append({'a':a.name,'b':name,'volume_mm3':vol})
 assert not collisions, collisions
-report={'revision':'0.5.2-power-service','source_sha256':source_hash,'preserved_meshes':len(protected),
+report={'revision':'0.6.0-manual-battery','source_sha256':source_hash,'preserved_meshes':len(protected),
  'protected_geometry_unchanged':True,'rigid_package_collisions':collisions,
  'fuse_body_mm':{'length':7.11,'diameter_max':2.8,'lead_diameter':.64},
  'J_PWR':'Two insulated mating halves in positive lead only; connector envelope remains provisional',
  'bypass':'100 nF at S2 VBUS/GND, after J_PWR',
- 'perfboard_pitch_mm':2.54,
+ 'battery_monitoring':'Manual per-cell multimeter checks; no sensing board or automatic low-voltage stop',
  'limitations':['Routing illustrates nets; complete wire collision and bend-radius validation is not performed.',
- 'Perfboard does not contain a verified copper/jumper layout.',
  'Existing fuse pocket retained; axial fuse must be insulated and strain-relieved, with loose retention checked physically.',
  'Home-Wi-Fi-first OTA is planned; current firmware creates SpyCar-Update.',
  'Published nominal components do not replace measurements of owned hardware.']}
@@ -235,7 +214,7 @@ allparts=[o for o in scene.objects if o.type in ('MESH','CURVE','FONT') and o.ge
 lo=[min(bounds(o)[0][i] for o in allparts) for i in range(3)];hi=[max(bounds(o)[1][i] for o in allparts) for i in range(3)]
 report['assembly_bounds_mm']={'min':lo,'max':hi,'size':[hi[i]-lo[i] for i in range(3)]}
 (OUT/'power-validation.json').write_text(json.dumps(report,indent=2)+'\n')
-scene['power_revision']='0.5.2: segmented positive J_PWR; axial fuse; corrected bypass position and explicit splices'
+scene['power_revision']='0.6.0: manual battery checks; no sensing board, sensing wiring or printed sensing holder'
 scene['network_status']='Home Wi-Fi browser driving supported; OTA currently uses own AP. Home-network OTA is planned.'
 # Expose hidden power parts in a separate service scene; normal assembly remains complete.
 bpy.ops.scene.new(type='FULL_COPY');service=bpy.context.scene;service.name='04 POWER SERVICE'
@@ -280,6 +259,7 @@ scene.camera=scene.objects['Camera - assembly']
 for s in (scene,exploded,service,details):
     s.cycles.samples=32
     s.render.resolution_x=1600;s.render.resolution_y=1250;s.render.resolution_percentage=100
+assert not [o.name for o in bpy.data.objects if any(t in o.name.lower() for t in ('perfboard','sense resistor','sense gpio','sense ground','sense fused','adc filter','bs250p','2n3904','adc carrier','adc spring','adc retaining','adc fixed'))], 'Unexpected sensing component remains'
 bpy.ops.wm.save_as_mainfile(filepath=str(MODEL),compress=True)
 if '--skip-renders' not in sys.argv:
     for s,cam,name in [(scene,'Camera - assembly','assembly.png'),(scene,'Camera - plan','top.png'),

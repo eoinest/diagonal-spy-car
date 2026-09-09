@@ -15,7 +15,7 @@
 bool queueWebCommand(const spycar::Packet &packet, uint32_t issuedAt);
 void requestWebStop();
 
-enum class WebDriveState { Ready, ServoSetup, BatterySetup, BatteryLow, OutputFault, Maintenance };
+enum class WebDriveState { Ready, ServoSetup, OutputFault, Maintenance };
 
 class WebControl {
  public:
@@ -55,10 +55,9 @@ class WebControl {
 
   bool ready() const { return server_ && wasConnected_; }
   uint32_t session() const { return activeSession_.load(); }
-  void status(WebDriveState state, bool armed, float volts) {
+  void status(WebDriveState state, bool armed) {
     state_ = state;
     armed_ = armed;
-    millivolts_ = isfinite(volts) && volts > 0 ? int(volts * 1000) : 0;
   }
   bool stop() {
     configured_ = false;
@@ -76,7 +75,6 @@ class WebControl {
   std::atomic<uint32_t> activeSession_{0};
   std::atomic<WebDriveState> state_{WebDriveState::ServoSetup};
   std::atomic<bool> armed_{false};
-  std::atomic<int> millivolts_{0};
   spycar::WebChallenge challenge_;
   uint32_t sequence_ = 0;
   uint32_t ownerLastCommand_ = 0;
@@ -115,17 +113,13 @@ class WebControl {
   esp_err_t reply(httpd_req_t *r, bool reset) {
     const uint32_t token = randomNonzero();
     challenge_.issue(token, millis());
-    static const char *reasons[] = {"Ready", "Calibrate servo neutral", "Calibrate battery sensing",
-                                   "Battery low or invalid", "Output fault", "Update mode"};
+    static const char *reasons[] = {"Ready", "Calibrate servo neutral", "Output fault", "Update mode"};
     const WebDriveState state = state_.load();
-    char voltage[20] = "null";
-    const int mv = millivolts_.load();
-    if (mv) snprintf(voltage, sizeof(voltage), "%.3f", mv / 1000.0);
     char payload[240];
     snprintf(payload, sizeof(payload),
-             "{\"token\":%lu,\"ready\":%s,\"armed\":%s,\"battery\":%s,\"reason\":\"%s\",\"reset\":%s}",
+             "{\"token\":%lu,\"ready\":%s,\"armed\":%s,\"reason\":\"%s\",\"reset\":%s}",
              (unsigned long)token, state == WebDriveState::Ready ? "true" : "false",
-             armed_.load() && !reset ? "true" : "false", voltage, reasons[int(state)], reset ? "true" : "false");
+             armed_.load() && !reset ? "true" : "false", reasons[int(state)], reset ? "true" : "false");
     httpd_ws_frame_t frame = {};
     frame.type = HTTPD_WS_TYPE_TEXT;
     frame.payload = reinterpret_cast<uint8_t *>(payload);

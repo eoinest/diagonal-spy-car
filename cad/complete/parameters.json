@@ -1,5 +1,5 @@
 {
-  "revision": "0.5.1-battery-envelope-audit",
+  "revision": "0.6.0-manual-battery",
   "units": "mm",
   "base_model": "../rolling/rolling-chassis.blend",
   "deck": {

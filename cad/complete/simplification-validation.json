@@ -1,0 +1,10 @@
+{
+  "revision": "0.6.0",
+  "previous_file_sha256": "beb912378b5336ad01852b8708b1cdf212f4236837b0ab3686e0dfabf3aa38c9",
+  "comparison": "Primary component world-space vertices rounded to 0.0001 mm vs saved revision 0.5.2",
+  "preserved_primary_meshes": 272,
+  "changed_primary_meshes": [],
+  "remaining_sensing_objects": [],
+  "deck": "Regenerated without sensing-board holder; strap cutter widened 0.04 mm to avoid coplanar Boolean seam",
+  "physical_fit_verified": false
+}

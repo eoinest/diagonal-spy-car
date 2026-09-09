@@ -1,4 +1,4 @@
-// Original MIT-licensed bench-only tool. Wheels OFF the floor; switch reachable.
+// Original MIT-licensed bench-only tool. Wheels OFF the floor; XT30 disconnect reachable.
 // No output until a serial command. Missing PWM is not a hardware power cut.
 #include <Arduino.h>
 
@@ -8,7 +8,6 @@
 
 constexpr uint8_t LEFT_PIN = 16;
 constexpr uint8_t RIGHT_PIN = 18;
-constexpr uint8_t SENSE_ENABLE_PIN = 7;
 int activePin = -1;
 uint32_t started = 0;
 char line[16] = {};
@@ -53,8 +52,6 @@ void handleCommand() {
 }
 
 void setup() {
-  pinMode(SENSE_ENABLE_PIN, OUTPUT);
-  digitalWrite(SENSE_ENABLE_PIN, LOW);
   disconnectSignal();
   Serial.begin(115200);
 #if ARDUINO_USB_CDC_ON_BOOT
