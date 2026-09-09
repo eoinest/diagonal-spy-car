@@ -217,6 +217,8 @@ fuse=box('Input fuse - unselected small leaded package',(-15,0,21),(3.5,8,4),PAR
 for xx in (-17.35,-12.65):union(deck,box('Fuse holder side',(xx,0,21.9),(1,9,6.6)))
 for yy in (-4.65,4.65):union(deck,box('Fuse holder end stop',(-15,yy,22.2),(5.7,1.0,6.0)))
 for xx in (-16.5,-13.5):union(deck,box('Fuse retaining lip',(xx,0,18.5),(1.7,8,.6)))
+# Through bores let the axial leads emerge straight before the external bends.
+boolean(deck,cyl('Fuse axial lead clearance',(-15,0,20.2),.75,12,axis='Y'))
 jp=box('J_PWR removable logic feed',(0,8,34),(5,4,3),PART,'black',bevel=.3,group='harness')
 # Routed named nets use exact modeled terminal positions where supplied.
 def terminal(group,key,fallback):return terminals.get(group,{}).get(key,fallback)

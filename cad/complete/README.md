@@ -1,10 +1,18 @@
-# Complete camera-free assembly - revision 0.6.0
+# Complete camera-free assembly - revision 0.6.1
 
 Open **[complete-spy-car.blend](complete-spy-car.blend)**. It contains `01 ASSEMBLED`, `02 EXPLODED`, `03 BATTERY DIMENSIONS`, `04 POWER SERVICE`, and `05 CONNECTOR DETAILS` scenes, named component collections, millimetre units, and source/confidence properties on the new electronics objects. The exploded scene hides loose wire curves to expose the parts.
 
 ![Assembled car](assembly.png)
 
 The battery, buck and S2 sit in one layer on a **52 x 76 mm removable printed deck**. This is slightly wider and longer than the wheel-only revision, but avoids stacking the buck above the S2. The main platform underside is 25 mm above the model origin, giving **1.5 mm nominal clearance above the 30 mm wheels**. Inspect [power-validation.json](power-validation.json) for the updated assembled bounds, including reference connectors and routed wires. [validation.json](validation.json) records the regenerated printed-deck checks for revision 0.6.0.
+
+## Fuse shape correction — revision 0.6.1
+
+The fuse now has a smooth epoxy-coated body with rounded shoulders, tapered lead exits and a shallow waist matching the family reference photograph. The **7.11 mm body length, 2.80 mm maximum diameter and 0.64 mm leads** follow the [Littelfuse drawing](https://www.littelfuse.com/assetdocs/littelfuse_fuse_251_253_datasheet.pdf?assetguid=f47a0bb7-8ede-4679-9646-7114c3787688). The contour is photo-informed, not an exact manufacturer surface model; no unverified printed markings are added.
+
+The updated deck has **1.5 mm axial clearance bores** through the fuse-holder end stops. Leads now exit straight before two **1 mm centerline-radius** bends outside the holder. Solder-joint insulation overlaps the lead and wire; all forming and sleeve dimensions are assembly allowances to verify physically. The retained loose holder is not a validated snap fit. Use this revision's `electronics-deck.stl` with the revised lead routing.
+
+The updated power validation measures the body envelope, checks its closed shell, and checks swept lead geometry against rigid components. The rest of the car and its manual battery-check approach remain unchanged.
 
 ## Simplified electronics — manual battery checks
 
@@ -22,7 +30,7 @@ The battery, buck, S2, servos, bearing wheels and integral-axle chassis retain t
 
 ![Enlarged fuse and unplugged positive connector](power-details.png)
 
-[Power revision verification](power-validation.json) checks the fuse, J_PWR and relocated capacitor against rigid components, and rejects leftover sensing packages. [Printable-part verification](validation.json) checks deck topology and nominal rigid clearances. [Simplification audit](simplification-validation.json) compares the retained primary component geometry against revision 0.5.2 and checks every scene for leftover sensing objects. These checks do not verify flexible wire bends, solder clearances, connector access or physical fit.
+[Power revision verification](power-validation.json) checks the fuse, J_PWR and relocated capacitor against rigid components, and rejects leftover sensing packages. [Printable-part verification](validation.json) checks deck topology and nominal rigid clearances. [Simplification audit](simplification-validation.json) compares the retained primary component geometry against the saved previous assembly and checks every scene for leftover sensing objects. These checks do not verify flexible wire bends, solder clearances, connector access or physical fit.
 
 The [seven-page wiring guide](../../output/pdf/spy-car-wiring-guide.pdf) has matching instructions. Home-Wi-Fi browser driving works in firmware; updates currently use `SpyCar-Update`. Home-Wi-Fi-first OTA with AP fallback remains planned.
 

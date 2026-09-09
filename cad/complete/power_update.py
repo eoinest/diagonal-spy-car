@@ -6,6 +6,8 @@ from pathlib import Path
 from mathutils import Vector
 
 OUT = Path(__file__).resolve().parent
+sys.path.insert(0,str(OUT))
+from fuse_geometry import epoxy_body, formed_lead_points
 MODEL = OUT / 'complete-spy-car.blend'
 SOURCE = Path(sys.argv[sys.argv.index('--source')+1]) if '--source' in sys.argv else MODEL
 source_hash = hashlib.sha256(SOURCE.read_bytes()).hexdigest()
@@ -81,13 +83,19 @@ def wire(name,points,color='red',radius=.45,net=''):
     return o
 
 # Published fuse body and wire diameter; trimmed/bent lead lengths are assembly assumptions.
-fuse=cyl('F_IN 0251004.MXL body',(-15,0,20.2),1.4,7.11,'green')
+fuse=epoxy_body(register)
 fuse['source']='https://www.littelfuse.com/assetdocs/littelfuse_fuse_251_253_datasheet.pdf?assetguid=f47a0bb7-8ede-4679-9646-7114c3787688'
-fuse['dimension_status']='251 halogen-free drawing: 7.11 mm body length, 2.80 mm maximum diameter; 4 A candidate remains provisional'
-# Leads leave through the existing holder's open underside. No fuse-holder STL is silently changed.
+fuse['rating_status']='4 A fuse selection remains provisional pending load tests'
+# Formed leads exit axially through the revised holder before bending down.
 for sign,net in [(-1,'VBAT_RAW'),(1,'VBAT_SW')]:
-    wire('F_IN '+net+' lead',[(-15,sign*3.555,20.2),(-15,sign*3.8,19.2),(-15,sign*3.8,17),(-15,sign*7,17)],'metal',.32,net)
-    cyl('F_IN '+net+' joint insulation',(-15,sign*8,17),.6,2.0,'red')
+    lead=wire('F_IN '+net+' lead',formed_lead_points(sign),'metal',.32,net)
+    lead.data.splines.clear();sp=lead.data.splines.new('POLY')
+    pts=formed_lead_points(sign);sp.points.add(len(pts)-1)
+    for p,co in zip(sp.points,pts):p.co=(*co,1)
+    lead['bend_radius_mm']=1.0
+    lead['route_status']='Forming allowance; support lead during bending and verify delivered part'
+    # The sleeve overlaps both tin lead and wire insulation at the solder joint.
+    cyl('F_IN '+net+' joint insulation',(-15,sign*8.5,17),.8,3.0,'red')
 wire('Battery harness to F_IN',[(-2.5,10.4,42.7),(-12,11,43),(-27,8,36),(-27,-3,22),(-15,-3,16),(-15,-9,17)],net='VBAT_RAW',radius=.65)
 wire('F_IN to buck IN+',[(-15,9,17),(-15,3,16),(-27,3,20),(-28,-13,28),(-23,-16.1,33),(-19.9,-16.1,30.86)],net='VBAT_SW',radius=.65)
 # A real separation in the positive-only logic feed, rather than a wire through a solid block.
@@ -199,22 +207,40 @@ for a in rigid:
         b=scene.objects[name]
         vol=overlap(a,b)
         if vol>.03:collisions.append({'a':a.name,'b':name,'volume_mm3':vol})
+# Validate actual swept lead geometry through the printed end-stop bores.
+lead_checks=[]
+for lead in [o for o in created if o.name.startswith('PW | F_IN VBAT_') and o.name.endswith(' lead')]:
+    evaluated=lead.evaluated_get(bpy.context.evaluated_depsgraph_get())
+    mesh=bpy.data.meshes.new_from_object(evaluated)
+    probe=bpy.data.objects.new('Temporary fuse lead validation',mesh);scene.collection.objects.link(probe)
+    probe.matrix_world=lead.matrix_world.copy();bpy.context.view_layer.update()
+    for name in protected:
+        volume=overlap(probe,scene.objects[name])
+        if volume>.03:collisions.append({'a':lead.name,'b':name,'volume_mm3':volume})
+    lead_checks.append(lead.name)
+    bpy.data.objects.remove(probe,do_unlink=True);bpy.data.meshes.remove(mesh)
 assert not collisions, collisions
-report={'revision':'0.6.0-manual-battery','source_sha256':source_hash,'preserved_meshes':len(protected),
+fl,fh=bounds(fuse);fuse_measured=[fh[i]-fl[i] for i in range(3)]
+assert all(abs(v-e)<.001 for v,e in zip(fuse_measured,[2.8,7.11,2.8])),fuse_measured
+report={'revision':'0.6.1-rounded-fuse','source_sha256':source_hash,'preserved_meshes':len(protected),
  'protected_geometry_unchanged':True,'rigid_package_collisions':collisions,
  'fuse_body_mm':{'length':7.11,'diameter_max':2.8,'lead_diameter':.64},
+ 'fuse_shape':'Rounded tapered epoxy with shallow waist; contour inferred from family photo',
+ 'fuse_measured_xyz_mm':fuse_measured,
+ 'formed_leads_collision_checked':lead_checks,
+ 'fuse_leads':'Straight axial exits through 1.5 mm holder bores; 1 mm centerline-radius bends',
  'J_PWR':'Two insulated mating halves in positive lead only; connector envelope remains provisional',
  'bypass':'100 nF at S2 VBUS/GND, after J_PWR',
  'battery_monitoring':'Manual per-cell multimeter checks; no sensing board or automatic low-voltage stop',
  'limitations':['Routing illustrates nets; complete wire collision and bend-radius validation is not performed.',
- 'Existing fuse pocket retained; axial fuse must be insulated and strain-relieved, with loose retention checked physically.',
+ 'Fuse holder has axial lead-clearance bores; retention, insulation, strain relief and lead-forming allowances need physical checks.',
  'Home-Wi-Fi-first OTA is planned; current firmware creates SpyCar-Update.',
  'Published nominal components do not replace measurements of owned hardware.']}
 allparts=[o for o in scene.objects if o.type in ('MESH','CURVE','FONT') and o.get('assembly_group') and not o.hide_render]
 lo=[min(bounds(o)[0][i] for o in allparts) for i in range(3)];hi=[max(bounds(o)[1][i] for o in allparts) for i in range(3)]
 report['assembly_bounds_mm']={'min':lo,'max':hi,'size':[hi[i]-lo[i] for i in range(3)]}
 (OUT/'power-validation.json').write_text(json.dumps(report,indent=2)+'\n')
-scene['power_revision']='0.6.0: manual battery checks; no sensing board, sensing wiring or printed sensing holder'
+scene['power_revision']='0.6.1: rounded epoxy fuse, axial lead exits and holder clearance bores; no sensing board'
 scene['network_status']='Home Wi-Fi browser driving supported; OTA currently uses own AP. Home-network OTA is planned.'
 # Expose hidden power parts in a separate service scene; normal assembly remains complete.
 bpy.ops.scene.new(type='FULL_COPY');service=bpy.context.scene;service.name='04 POWER SERVICE'
@@ -246,7 +272,7 @@ for original in scene.objects:
         copy=original.copy();copy.data=original.data.copy();details.collection.objects.link(copy)
 camdata=bpy.data.cameras.new('PW detail camera');cam=bpy.data.objects.new('PW detail camera',camdata);details.collection.objects.link(cam)
 cam.location=(0,0,100);cam.rotation_euler=(0,0,0);camdata.type='ORTHO';camdata.ortho_scale=48;details.camera=cam
-for text,x,y,size in [('F_IN: AXIAL FUSE',-12,13,1.2),('7.11 mm x 2.80 mm max',-12,-12, .8),
+for text,x,y,size in [('F_IN: AXIAL FUSE',-12,13,1.2),('7.11 mm x 2.80 mm max',-12,-12, .8),('Rounded contour: photo approximation',-12,-14,.65),
                        ('J_PWR: UNPLUGGED',10,13,1.2),('Positive 5 V lead only',10,-8,.9),
                        ('Connector shape is provisional',10,-10,.75)]:
     data=bpy.data.curves.new('PW detail label','FONT');data.body=text;data.size=size;data.align_x='CENTER'

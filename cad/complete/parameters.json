@@ -1,5 +1,5 @@
 {
-  "revision": "0.6.0-manual-battery",
+  "revision": "0.6.1-rounded-fuse",
   "units": "mm",
   "base_model": "../rolling/rolling-chassis.blend",
   "deck": {

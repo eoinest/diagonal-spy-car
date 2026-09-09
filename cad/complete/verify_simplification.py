@@ -1,4 +1,4 @@
-"""Audit revision 0.6.0 against a saved pre-simplification assembly.
+"""Audit the current assembly against a saved previous assembly.
 Run Blender with --python verify_simplification.py -- --before /path/to/previous.blend.
 The comparison preserves primary geometry; the deck intentionally changes.
 """
@@ -23,6 +23,6 @@ assert not changed,changed
 forbidden=('perfboard','sense resistor','resistor lead','sense gpio','sense ground','sense fused','adc filter','bs250p','2n3904','adc carrier','adc spring','adc retaining','adc fixed')
 leftovers=[o.name for o in bpy.data.objects if any(t in o.name.lower() for t in forbidden)]
 assert not leftovers,leftovers
-r={'revision':'0.6.0','previous_file_sha256':hashlib.sha256(BEFORE.read_bytes()).hexdigest(),'comparison':'Primary component world-space vertices rounded to 0.0001 mm vs saved revision 0.5.2', 'preserved_primary_meshes':len(before),'changed_primary_meshes':changed,'remaining_sensing_objects':leftovers,'deck':'Regenerated without sensing-board holder; strap cutter widened 0.04 mm to avoid coplanar Boolean seam','physical_fit_verified':False}
+r={'revision':json.loads((ROOT/'parameters.json').read_text())['revision'],'previous_file_sha256':hashlib.sha256(BEFORE.read_bytes()).hexdigest(),'comparison':'Primary component world-space vertices rounded to 0.0001 mm vs supplied previous assembly', 'preserved_primary_meshes':len(before),'changed_primary_meshes':changed,'remaining_sensing_objects':leftovers,'deck':'Excluded from primary-part comparison; printed deck changes are validated in validation.json','physical_fit_verified':False}
 (ROOT/'simplification-validation.json').write_text(json.dumps(r,indent=2)+'\n')
 print('SIMPLIFICATION_AUDIT_OK',json.dumps(r))

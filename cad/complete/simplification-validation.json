@@ -1,10 +1,10 @@
 {
-  "revision": "0.6.0",
-  "previous_file_sha256": "beb912378b5336ad01852b8708b1cdf212f4236837b0ab3686e0dfabf3aa38c9",
-  "comparison": "Primary component world-space vertices rounded to 0.0001 mm vs saved revision 0.5.2",
+  "revision": "0.6.1-rounded-fuse",
+  "previous_file_sha256": "a6015925f0d65c9fb2b0a9e8bb456bf80288af7b64e0c8c5c6c445357f258712",
+  "comparison": "Primary component world-space vertices rounded to 0.0001 mm vs supplied previous assembly",
   "preserved_primary_meshes": 272,
   "changed_primary_meshes": [],
   "remaining_sensing_objects": [],
-  "deck": "Regenerated without sensing-board holder; strap cutter widened 0.04 mm to avoid coplanar Boolean seam",
+  "deck": "Excluded from primary-part comparison; printed deck changes are validated in validation.json",
   "physical_fit_verified": false
 }
