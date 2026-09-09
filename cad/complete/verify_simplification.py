@@ -20,7 +20,7 @@ before=inventory(BEFORE)
 after=inventory(ROOT/'complete-spy-car.blend')
 changed=[n for n in before if before[n]!=after.get(n)]
 assert not changed,changed
-forbidden=('perfboard','sense resistor','resistor lead','sense gpio','sense ground','sense fused','adc filter','bs250p','2n3904','adc carrier','adc spring','adc retaining','adc fixed')
+forbidden=('220uf','bulk capacitor','bulk positive','bulk negative','perfboard','sense resistor','resistor lead','sense gpio','sense ground','sense fused','adc filter','bs250p','2n3904','adc carrier','adc spring','adc retaining','adc fixed')
 leftovers=[o.name for o in bpy.data.objects if any(t in o.name.lower() for t in forbidden)]
 assert not leftovers,leftovers
 r={'revision':json.loads((ROOT/'parameters.json').read_text())['revision'],'previous_file_sha256':hashlib.sha256(BEFORE.read_bytes()).hexdigest(),'comparison':'Primary component world-space vertices rounded to 0.0001 mm vs supplied previous assembly', 'preserved_primary_meshes':len(before),'changed_primary_meshes':changed,'remaining_sensing_objects':leftovers,'deck':'Excluded from primary-part comparison; printed deck changes are validated in validation.json','physical_fit_verified':False}

@@ -204,14 +204,7 @@ for xx in (-20.5,-18,-15.5):
 wire('Battery positive lead',[terminals['battery']['positive'],(-25,-5,40),(-15,-8,44),(-2.5,-10,42.7)],'red',.75)
 wire('Battery negative lead',[terminals['battery']['negative'],(-25,1,40),(-15,-7,44),(2.5,-10,42.7)],'black',.75)
 for idx,col in enumerate(('black','white','red')):wire('Balance cell tap '+str(idx),[terminals['battery']['balance_lead_exit'],(-25,2+idx,38),(-20,6+idx*.3,44),(-18+(idx-1)*2.5,2.0,44.6)],col,.35)
-# Bulk capacitor and fuse occupy separate underdeck cradles, away from the pouch.
-bulk=cyl('220uF 10V external bulk capacitor',(15,0,21.5),3.25,9,PART,'black','Y',group='harness')
-cyl('Bulk capacitor metal lid',(15,4.52,21.5),3.1,.1,PART,'metal','Y',group='harness')
-cradle=cyl('Bulk capacitor C cradle',(15,0,21.5),4.15,7.8,axis='Y')
-boolean(cradle,cyl('Bulk cavity',(15,0,21.5),3.55,10,axis='Y'))
-boolean(cradle,box('Bulk insertion opening',(15,0,17.5),(3.8,11,5)))
-union(deck,cradle)
-for yy in (-4.85,4.85):union(deck,box('Bulk axial stop',(15,yy,24.5),(4,.6,1.8)))
+# Retain only the small S2 bypass and inline fuse.
 for loc,name in [((15,-5.7,21),'100nF bus bypass')]:box(name,loc,(2,1,2),PART,'tan',bevel=.15,group='harness')
 fuse=box('Input fuse - unselected small leaded package',(-15,0,21),(3.5,8,4),PART,'green',bevel=.4,group='harness')
 for xx in (-17.35,-12.65):union(deck,box('Fuse holder side',(xx,0,21.9),(1,9,6.6)))
@@ -229,8 +222,6 @@ wire('VBAT negative to buck',[(2.5,10.4,42.7),(20,-7,42),(24,-25,35),bn],'black'
 starplus=(21,-10.5,30.8);starminus=(23,-10.5,30.8)
 wire('Buck OUT+ to star',[bo,(22,-15,32),starplus],'red',.65)
 wire('Buck OUT- to star',[bg,(24,-26,33),starminus],'black',.65)
-wire('Bulk positive to distribution',[(14,-4.5,21.5),(17,-6,24),starplus],'red',.4)
-wire('Bulk negative to distribution',[(16,-4.5,21.5),(18,-6,24),starminus],'black',.4)
 sv=terminal('s2','VBUS',[-9.7,10.57,30.85]);sg=terminal('s2','GND',[-7.16,10.57,30.85])
 wire('5V bus through removable J_PWR',[starplus,(15,7.8,33),(0,8,34),sv],'red',.45)
 wire('Common logic ground',[starminus,(16,9,32),sg],'black',.45)
@@ -282,7 +273,7 @@ for i,a in enumerate(newprints):
     for b in newprints[i+1:]:
         vol=overlap(a,b)
         if vol>.03:collisions.append({'a':a.name,'b':b.name,'volume_mm3':round(vol,4)})
-rigid_aux=[o for o in groups['harness'] if o.type=='MESH' and any(t in o.name for t in ('external bulk','Input fuse','100nF','J_PWR','XT30 battery','XT30 harness','balance plug'))]
+rigid_aux=[o for o in groups['harness'] if o.type=='MESH' and any(t in o.name for t in ('Input fuse','100nF','J_PWR','XT30 battery','XT30 harness','balance plug'))]
 for a in rigid_aux:
     for b in newprints+groups['base']+groups['battery']+groups['buck']+groups['s2']:
         if b.type!='MESH':continue

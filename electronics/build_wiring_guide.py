@@ -76,8 +76,8 @@ text(734,680,'VBUS',10,RED,True);text(744,723,'GND',10,GND,True)
 line([(715,510),(715,400),(905,400),(905,338),(930,338)],ORANGE,2);text(720,382,'GPIO16 > LEFT SIGNAL',11,ORANGE,True)
 line([(750,510),(750,428),(910,428),(910,638),(930,638)],BLUE,2);text(760,430,'GPIO18 > RIGHT',10,BLUE,True)
 text(918,343,'S',10,ORANGE,True);text(918,641,'S',10,BLUE,True)
-box(40,470,470,130);text(56,484,'At the 5 V / GND split',16,bold=True)
-para(56,512,'At the split: <b>220 uF / 10 V electrolytic</b> (+ to 5 V; striped negative to GND). At the S2, <b>after J_PWR:</b> add <b>100 nF ceramic across VBUS and GND</b> with short leads. Preserve the buck\'s onboard capacitor.',435,13)
+box(40,470,470,130);text(56,484,'At the S2 supply pads',16,bold=True)
+para(56,512,'Keep <b>100 nF ceramic across VBUS and GND after J_PWR</b>, with short leads. The extra external 220 uF bulk capacitor is omitted. Preserve <b>all capacitors already fitted to the buck</b>; test startup and reversal for supply dips.',435,13)
 box(40,615,470,143);text(56,629,'Manual battery checks: page 4',16,bold=True)
 para(56,659,'No sensing perfboard or GPIO3/GPIO7 wires. The car has <b>no battery reading, alarm or low-voltage stop</b>. Check each cell with a meter between short runs and unplug when parked.',433,13)
 text(40,778,'* Fuse rating is provisional. Photos show reference servos; wire functions, not plug orientation, define the connections.',11,MUTED)
@@ -138,7 +138,7 @@ box(40,145,550,392);text(58,162,'Wire and check in this order',19,bold=True)
 steps=[
 '1. Battery unplugged: solder the mating XT30 lead through a provisional 4 A inline fuse to IN+; negative to IN-. Insulate every joint.',
 '2. Leave all loads disconnected. Power the buck, read OUT+ to OUT- with a multimeter and adjust to 5.00 V. Unplug before adding wires.',
-'3. Split OUT+ and OUT- into separate servo and S2 branches. Add the capacitors. Fit J_PWR as a removable insulated connector in the S2 VBUS feed.',
+'3. Split OUT+ and OUT- into separate servo and S2 branches. Add the 100 nF bypass at S2 VBUS/GND after J_PWR. Fit J_PWR as a removable insulated connector in the S2 VBUS feed.',
 '4. Leave GPIO3 and GPIO7 unwired. There is no sensing circuit. Check both cells with a meter as shown on page 4.',
 '5. With wheels lifted, test each servo, then both together. Check 5 V stability, resets and board temperature at 8.4 V and 7.0 V input. Do not hold a servo stalled.',
 '6. Verify calibrated neutral on joystick release and signal loss. Firmware cannot detect a low battery. Establish short run intervals with manual cell checks.'
@@ -156,7 +156,7 @@ for i,(lab,url) in enumerate(sources):link(40+(i//3)*565,694+(i%3)*24,lab,url,11
 text(40,774,'Battery photo: Lumenier / RaceDayQuads (page 3). Converter and connector photos: user. Third-party images are not MIT-licensed.',10,MUTED)
 end()
 
-header(6,'What is underneath the deck?','The sensing perfboard is removed. The fuse and power capacitors remain; none is a charger.')
+header(6,'What is underneath the deck?','The perfboard and extra bulk capacitor are removed. The fuse and small S2 bypass remain.')
 box(40,145,545,395)
 text(58,162,'F_IN: a compact fuse candidate',20,bold=True)
 img('fuse-pico-251.jpg',68,219,180,180)
@@ -169,7 +169,7 @@ box(610,145,550,395)
 text(628,162,'Why these extra parts are here',20,bold=True)
 para(628,207,'<b>Fuse:</b> opens the battery-positive feed during a sufficiently large overcurrent, such as a wiring short. It is one-time use; replace after finding the fault. It is not low-battery protection or a precise 4 A current limiter.',510,14)
 para(628,316,'<b>No perfboard:</b> the voltage divider, transistors, sensing resistors and ADC filter are removed. There are no GPIO3 or GPIO7 wires. Battery checks are manual; no electronic low-voltage protection remains.',510,14)
-para(628,438,'<b>Capacitors:</b> the nearby 220 uF and 100 nF parts help smooth the 5 V supply. They do not replace an adequately sized converter.',510,14)
+para(628,438,'<b>Bypass:</b> retain the small 100 nF ceramic at S2 VBUS/GND after J_PWR and the buck\'s fitted capacitors. The extra 220 uF part is omitted; supply stability still needs a load test.',510,14)
 box(40,560,1120,115,fill='#E8F3F0')
 text(58,574,'Where the fuse connects',17,bold=True)
 text(62,619,'XT30 harness +',15,RED,True)

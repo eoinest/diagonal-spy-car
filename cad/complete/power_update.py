@@ -119,7 +119,7 @@ for o in scene.objects:
             for before,after in zip(star_old,[plus,minus]):
                 if (p.co-before).length<.02:p.co=after
             # Keep power service loops outside the battery's occupied volume.
-            if any(tag in o.name for tag in ('servo GPIO','Bulk ','Common logic')) and 28<p.co.z<40 and -11<=p.co.y<=6 and abs(p.co.x)<24.8:
+            if any(tag in o.name for tag in ('servo GPIO','Common logic')) and 28<p.co.z<40 and -11<=p.co.y<=6 and abs(p.co.x)<24.8:
                 p.co.x=27 if p.co.x>=0 else -27
 # Use explicit outside-deck descent lanes, then cross below the deck.
 # Merely moving a control point outside the pouch can still leave the curve through it.
@@ -153,9 +153,6 @@ for pin,side in [('GPIO16',-1),('GPIO18',1)]:
     start=curve_end(obj,0);end=curve_end(obj,-1)
     route_existing(name,[start,(side*27,9,34),(side*27,3,34),(side*27,3,17),
         (side*14,3,17),(side*14,end[1],17),end])
-for name,loc,junction,x in [('Bulk positive to distribution',(14,-4.5,21.5),plus,27),
-                           ('Bulk negative to distribution',(16,-4.5,21.5),minus,28)]:
-    route_existing(name,[loc,(loc[0],-6,21.5),(x,-6,22),(x,-13,34),junction])
 route_existing('Common logic ground',[minus,(28,-13,34),(28,9,34),(-6.35,11.57,30.86)])
 route_existing('PW | 5V_BUS to J_PWR socket',[plus,(27,-13,35),(27,8,35),(12,8,34),(4.7,8,34)])
 # Fix main negative route so it goes around, rather than across, buck components.
@@ -222,7 +219,7 @@ for lead in [o for o in created if o.name.startswith('PW | F_IN VBAT_') and o.na
 assert not collisions, collisions
 fl,fh=bounds(fuse);fuse_measured=[fh[i]-fl[i] for i in range(3)]
 assert all(abs(v-e)<.001 for v,e in zip(fuse_measured,[2.8,7.11,2.8])),fuse_measured
-report={'revision':'0.6.1-rounded-fuse','source_sha256':source_hash,'preserved_meshes':len(protected),
+report={'revision':'0.6.2-no-external-bulk','source_sha256':source_hash,'preserved_meshes':len(protected),
  'protected_geometry_unchanged':True,'rigid_package_collisions':collisions,
  'fuse_body_mm':{'length':7.11,'diameter_max':2.8,'lead_diameter':.64},
  'fuse_shape':'Rounded tapered epoxy with shallow waist; contour inferred from family photo',
@@ -240,7 +237,7 @@ allparts=[o for o in scene.objects if o.type in ('MESH','CURVE','FONT') and o.ge
 lo=[min(bounds(o)[0][i] for o in allparts) for i in range(3)];hi=[max(bounds(o)[1][i] for o in allparts) for i in range(3)]
 report['assembly_bounds_mm']={'min':lo,'max':hi,'size':[hi[i]-lo[i] for i in range(3)]}
 (OUT/'power-validation.json').write_text(json.dumps(report,indent=2)+'\n')
-scene['power_revision']='0.6.1: rounded epoxy fuse, axial lead exits and holder clearance bores; no sensing board'
+scene['power_revision']='0.6.2: no external bulk capacitor or sensing board; rounded fuse with axial lead exits'
 scene['network_status']='Home Wi-Fi browser driving supported; OTA currently uses own AP. Home-network OTA is planned.'
 # Expose hidden power parts in a separate service scene; normal assembly remains complete.
 bpy.ops.scene.new(type='FULL_COPY');service=bpy.context.scene;service.name='04 POWER SERVICE'
@@ -285,7 +282,7 @@ scene.camera=scene.objects['Camera - assembly']
 for s in (scene,exploded,service,details):
     s.cycles.samples=32
     s.render.resolution_x=1600;s.render.resolution_y=1250;s.render.resolution_percentage=100
-assert not [o.name for o in bpy.data.objects if any(t in o.name.lower() for t in ('perfboard','sense resistor','sense gpio','sense ground','sense fused','adc filter','bs250p','2n3904','adc carrier','adc spring','adc retaining','adc fixed'))], 'Unexpected sensing component remains'
+assert not [o.name for o in bpy.data.objects if any(t in o.name.lower() for t in ('220uf','bulk capacitor','bulk positive','bulk negative','perfboard','sense resistor','sense gpio','sense ground','sense fused','adc filter','bs250p','2n3904','adc carrier','adc spring','adc retaining','adc fixed'))], 'Unexpected sensing component remains'
 bpy.ops.wm.save_as_mainfile(filepath=str(MODEL),compress=True)
 if '--skip-renders' not in sys.argv:
     for s,cam,name in [(scene,'Camera - assembly','assembly.png'),(scene,'Camera - plan','top.png'),

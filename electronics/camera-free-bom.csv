@@ -6,7 +6,6 @@ BAT,1,buy,Lumenier300mAh2S75C XT30 SKU10188,13.49,https://www.racedayquads.com/p
 J_BAT,1,reuse if XT30 otherwise buy,Mating XT30 pigtail with22AWG or thicker wire,,,Match contact gender to battery; owned photo cannot distinguish XT30/XT60; verify polarity
 F_IN,1,candidate; validate,Littelfuse 0251004.MXL PICO II 251 axial fuse; 4 A provisional,1.24,https://www.digikey.com/en/products/detail/littelfuse-inc/0251004-MXL/700745,125VDC;300A DC interrupt;body7.11x2.80mm max; solder inline and insulate with strain relief; validate wire/fuse/inrush coordination; CAD nominal body; lead bends and insulation provisional; price snapshot2026-09-08
 J_PWR,1,buy or fabricate,Insulated removable connector in S2 VBUS feed,,,Remove during USB programming; servo signals and battery also disconnected
-C_BULK,1,buy,220uF10V radial electrolytic,,,At servo split; striped negative toGND; retain onboard capacitor; verify stability
 C_BYPASS,1,buy,100nF ceramic16V or higher,,,Across S2 VBUS and GND after J_PWR; short leads at S2 supply pads
 HARNESS,1,buy or owned,Wire; servo extension leads; heatshrink,,,22AWG minimum main power; insulated soldered joints; no perfboard; no motor current through S2
 CHARGER,1,bench tool,2S balance charger adjustable to0.30A,,,LiPo4.2V/cell;main XT30 plus3pin balance lead; not1S TP4056

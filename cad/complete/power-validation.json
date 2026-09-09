@@ -1,6 +1,6 @@
 {
-  "revision": "0.6.1-rounded-fuse",
-  "source_sha256": "f607afa5483bce698aa32869a3eabf05c8485e6e72be984bae376043c927164c",
+  "revision": "0.6.2-no-external-bulk",
+  "source_sha256": "431011719be43d6c16b07264aed9a16a9902c61b476147c9b92673e4bb7099b4",
   "preserved_meshes": 273,
   "protected_geometry_unchanged": true,
   "rigid_package_collisions": [],

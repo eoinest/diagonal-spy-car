@@ -1,5 +1,5 @@
 {
-  "revision": "0.6.1-rounded-fuse",
+  "revision": "0.6.2-no-external-bulk",
   "units": "mm",
   "scope": "Nominal rigid-part fit. No insertion, strength, thermal or routed-wire collision validation.",
   "base_model_sha256": "6ba1bfaf8789c2211182ce0f3f4bd6aa12e54c33657125ec088ec2949bdb4b1d",
@@ -8,20 +8,20 @@
       "file": "electronics-deck.stl",
       "valid": true,
       "errors": [],
-      "file_bytes": 291584,
-      "declared_triangles": 5830,
-      "expected_file_bytes": 291584,
+      "file_bytes": 271184,
+      "declared_triangles": 5422,
+      "expected_file_bytes": 271184,
       "binary_length_valid": true,
       "nonfinite_coordinates": 0,
       "nonfinite_stored_normals": 0,
-      "vertices": 2897,
-      "triangles": 5830,
+      "vertices": 2693,
+      "triangles": 5422,
       "zero_area_triangles": 0,
       "duplicate_faces": 0,
       "non_manifold_edges": 0,
       "inconsistent_edge_winding": 0,
       "connected_components": 1,
-      "signed_volume_mm3": 10517.257420926982,
+      "signed_volume_mm3": 10431.021783492468,
       "bounds_mm": [
         [
           -26.0,
@@ -38,14 +38,14 @@
       ],
       "minimum_z_mm": 0.0,
       "welded_round_5_diagnostics": {
-        "vertices": 2897,
-        "triangles": 5830,
+        "vertices": 2693,
+        "triangles": 5422,
         "zero_area_triangles": 0,
         "duplicate_faces": 0,
         "non_manifold_edges": 0,
         "inconsistent_edge_winding": 0,
         "connected_components": 1,
-        "signed_volume_mm3": 10517.254926338603,
+        "signed_volume_mm3": 10431.019330068622,
         "bounds_mm": [
           [
             -26.0,
@@ -390,5 +390,6 @@
       76.0,
       54.375
     ]
-  }
+  },
+  "latest_edit": "bulk-removal-validation.json; earlier assembly collision and inventory values are from the full 0.6.1 build"
 }

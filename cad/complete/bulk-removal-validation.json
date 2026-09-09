@@ -1,0 +1,80 @@
+{
+  "revision": "0.6.2-no-external-bulk",
+  "source_sha256": "9deeffbfcc153594a68f9915a48ca1ddab99453fcf15b108dbb1553a52aededa",
+  "removed_objects": [
+    "220uF 10V external bulk capacitor",
+    "220uF 10V external bulk capacitor.001",
+    "220uF 10V external bulk capacitor.002",
+    "Bulk capacitor metal lid",
+    "Bulk capacitor metal lid.001",
+    "Bulk capacitor metal lid.002",
+    "Bulk negative to distribution",
+    "Bulk negative to distribution.001",
+    "Bulk negative to distribution.002",
+    "Bulk positive to distribution",
+    "Bulk positive to distribution.001",
+    "Bulk positive to distribution.002"
+  ],
+  "deck_stl": {
+    "file": "/Users/ernestmccarter/Documents/dev/diagonal-spy-car/cad/complete/electronics-deck.stl",
+    "valid": true,
+    "errors": [],
+    "file_bytes": 271184,
+    "declared_triangles": 5422,
+    "expected_file_bytes": 271184,
+    "binary_length_valid": true,
+    "nonfinite_coordinates": 0,
+    "nonfinite_stored_normals": 0,
+    "vertices": 2693,
+    "triangles": 5422,
+    "zero_area_triangles": 0,
+    "duplicate_faces": 0,
+    "non_manifold_edges": 0,
+    "inconsistent_edge_winding": 0,
+    "connected_components": 1,
+    "signed_volume_mm3": 10431.021783492468,
+    "bounds_mm": [
+      [
+        -26.0,
+        26.0
+      ],
+      [
+        -38.0,
+        38.0
+      ],
+      [
+        0.0,
+        32.900001525878906
+      ]
+    ],
+    "minimum_z_mm": 0.0,
+    "welded_round_5_diagnostics": {
+      "vertices": 2693,
+      "triangles": 5422,
+      "zero_area_triangles": 0,
+      "duplicate_faces": 0,
+      "non_manifold_edges": 0,
+      "inconsistent_edge_winding": 0,
+      "connected_components": 1,
+      "signed_volume_mm3": 10431.019330068622,
+      "bounds_mm": [
+        [
+          -26.0,
+          26.0
+        ],
+        [
+          -38.0,
+          38.0
+        ],
+        [
+          0.0,
+          32.9
+        ]
+      ],
+      "minimum_z_mm": 0.0
+    }
+  },
+  "retained": "Converter onboard capacitors and 100 nF S2 bypass; existing fuse correction",
+  "scope": "Capacitor holder removed only below deck at X 10.5..19.5, Y -5.5..5.5, Z 17..25 mm. Fuse bores preserved/reapplied.",
+  "physical_fit_verified": false
+}

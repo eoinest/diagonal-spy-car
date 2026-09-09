@@ -1,6 +1,6 @@
 {
-  "revision": "0.6.1-rounded-fuse",
-  "previous_file_sha256": "a6015925f0d65c9fb2b0a9e8bb456bf80288af7b64e0c8c5c6c445357f258712",
+  "revision": "0.6.2-no-external-bulk",
+  "previous_file_sha256": "9deeffbfcc153594a68f9915a48ca1ddab99453fcf15b108dbb1553a52aededa",
   "comparison": "Primary component world-space vertices rounded to 0.0001 mm vs supplied previous assembly",
   "preserved_primary_meshes": 272,
   "changed_primary_meshes": [],

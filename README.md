@@ -2,9 +2,9 @@
 
 An open-source, 3D-printable rover using two owned MG90S-style continuous servos, a LOLIN ESP32-S2 Mini, and diagonal drive wheels. Inspired by [Pro Know DIY's micro RC FPV car](https://github.com/proknowdiy/micro_rc_fpv_car_esp-now).
 
-## Complete Blender assembly - revision 0.6.1
+## Complete Blender assembly - revision 0.6.2
 
-Open the [complete Blender model](cad/complete/complete-spy-car.blend) for assembled and exploded scenes, detailed component references, routed wiring, and the removable electronics carrier. The battery, owned large buck and S2 Mini fit in one layer on a **52 x 76 mm deck**. The integral printed axles are preserved. The simplified revision removes the battery-sensing perfboard, its transistors/resistors, ADC capacitor, signal wiring and printed holder. The fuse, two power capacitors and positive-only `J_PWR` remain. Battery checks are manual; there is no onboard voltage monitoring or low-voltage stop. Revision 0.6.1 corrects the fuse to a rounded epoxy profile and adds axial lead clearances to its holder.
+Open the [complete Blender model](cad/complete/complete-spy-car.blend) for assembled and exploded scenes, detailed component references, routed wiring, and the removable electronics carrier. The battery, owned large buck and S2 Mini fit in one layer on a **52 x 76 mm deck**. The integral printed axles are preserved. The simplified revision removes the battery-sensing perfboard, its transistors/resistors, ADC capacitor, signal wiring and printed holder. The fuse, small 100 nF S2 bypass and positive-only `J_PWR` remain. Revision 0.6.2 removes the extra 220 µF capacitor, its wires and printed holder. Battery checks are manual; there is no onboard voltage monitoring or low-voltage stop. Revision 0.6.1 corrects the fuse to a rounded epoxy profile and adds axial lead clearances to its holder.
 
 ![Complete camera-free car](cad/complete/assembly.png)
 

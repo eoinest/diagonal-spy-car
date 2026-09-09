@@ -1,10 +1,16 @@
-# Complete camera-free assembly - revision 0.6.1
+# Complete camera-free assembly - revision 0.6.2
 
 Open **[complete-spy-car.blend](complete-spy-car.blend)**. It contains `01 ASSEMBLED`, `02 EXPLODED`, `03 BATTERY DIMENSIONS`, `04 POWER SERVICE`, and `05 CONNECTOR DETAILS` scenes, named component collections, millimetre units, and source/confidence properties on the new electronics objects. The exploded scene hides loose wire curves to expose the parts.
 
 ![Assembled car](assembly.png)
 
 The battery, buck and S2 sit in one layer on a **52 x 76 mm removable printed deck**. This is slightly wider and longer than the wheel-only revision, but avoids stacking the buck above the S2. The main platform underside is 25 mm above the model origin, giving **1.5 mm nominal clearance above the 30 mm wheels**. Inspect [power-validation.json](power-validation.json) for the updated assembled bounds, including reference connectors and routed wires. [validation.json](validation.json) records the regenerated printed-deck checks for revision 0.6.0.
+
+## Extra capacitor removed — revision 0.6.2
+
+The external **220 µF capacitor**, its metal lid, two wires and printed under-deck cradle/end stops have been removed. The converter's fitted capacitors and the small **100 nF S2 bypass** remain. This POC omits extra bulk capacitance pending physical power/load tests.
+
+The saved assembly was patched directly to preserve other geometry; its earlier fuse correction was restored where a stale saved scene had reverted it. [Removal validation](bulk-removal-validation.json) records every removed object and validates the updated deck STL. The model and all current renders use this revision.
 
 ## Fuse shape correction — revision 0.6.1
 
@@ -20,7 +26,7 @@ Revision **0.6.0** removes the entire battery-sensing circuit: perfboard, two tr
 
 The battery, buck, S2, servos, bearing wheels and integral-axle chassis retain their existing nominal dimensions and arrangement. This clears the middle underneath the deck; the **52 × 76 mm deck footprint is unchanged** because the battery and boards still occupy the same space.
 
-- Retained: input fuse, 220 µF bulk capacitor, 100 nF bypass capacitor, XT30 and positive-only `J_PWR`. No sensing board is hidden in the assembly or exploded scenes.
+- Retained: input fuse, 100 nF bypass capacitor, XT30 and positive-only `J_PWR`. No sensing board is hidden in the assembly or exploded scenes.
 - `J_PWR` remains a removable positive 5 V wire connection for USB recovery. Its **9.4 × 2.8 × 3 mm mated housing allowance is provisional**; the exact connector is not selected. Ground stays continuous.
 - The fuse uses the **7.11 × 2.80 mm maximum body** and **0.64 mm leads** of the candidate Littelfuse 0251004.MXL. The retained loose carrier, insulation, strain relief and rating need physical verification.
 - Power distribution uses insulated soldered splices. The 100 nF bypass connects S2 VBUS/GND after `J_PWR`.
@@ -54,7 +60,7 @@ The build measures the actual transformed geometry and rejects a deviation great
 - Both nominal MG90S-style servo cases, ears, bosses and shafts; two MR83ZZ 3 x 8 x 3 mm bearings; two passive press-fit wheels.
 - New powered wheels with keyed pockets for assumed factory double-arm horns, relieved retaining tongues, and center-screw access. The **original horn and supplied servo center screw** remain part of the owned servo assembly. No replacement spline is invented and no new mounting screws are specified.
 - Detailed Lumenier 300 mAh 2S battery, large LM2596-style module and LOLIN S2 Mini, including drilled PCB pads, reference mounting holes, USB shell, switches, antenna, IC packages, capacitor markings and PCB labels.
-- XT30 mating connector reference, balance connector, removable `J_PWR`, fuse, bulk and bypass capacitors. No battery-sensing board or components.
+- XT30 mating connector reference, balance connector, removable `J_PWR`, fuse and 100 nF bypass capacitor. No battery-sensing board or components.
 - Named power, ground and GPIO wire routes. Battery and board endpoints use the modeled terminal coordinates. These are packaging/service-loop references, **not a replacement for the [electrical guide](../../electronics/wiring.md)** or a production harness drawing.
 
 The camera and external charging/transmitter equipment are not mounted on this camera-free car. The receiver now supports the phone/browser joystick; the separate ESP-NOW handheld is optional. Configure Wi-Fi, commission servo neutral and check both battery cells with a multimeter before driving.
@@ -80,7 +86,7 @@ See the [assembly parts list](parts.csv) alongside the [electrical BOM](../../el
 
 1. Keep the [existing chassis and passive wheel STL files](../rolling/README.md), including both bearing/axle fit coupons. Axles remain integral to the chassis.
 2. Print [electronics-deck.stl](electronics-deck.stl) in PETG as a fit prototype. Four independent end fingers wrap around the base; upper ledges carry the weight and lower hooks prevent lift. End-local guides locate it sideways. The tall fingers, underdeck holders and rail overhangs require an intentional support/orientation plan; inspect the slicer preview before printing.
-3. Install the fuse and bulk capacitor under the deck. Their holders are printed into the deck; the central sensing-board holder has been removed. Leave service slack so the deck can be removed. Actual component heights must fit the verified rigid clearances.
+3. Install the fuse under the deck. Its holder remains; the sensing-board holder and external capacitor cradle have been removed. Leave service slack so the deck can be removed. Actual component heights must fit the verified rigid clearances.
 4. Slide the buck and S2 into their board-edge rails from the open end, before attaching the harness. PCB retention is a nominal friction fit with a far-end stop. Inspect underside solder clearance, button access and edge contact on the delivered boards; do not force a board into the rails.
 5. Add 0.8 mm protective padding under the battery. Print **two** [battery-band-tpu.stl](battery-band-tpu.stl) loops in TPU; their slots and clearances retain the pack without a rigid high-force clamp on the pouch. Check the actual pack with its wrap and leads. The model does not imply that PETG is a substitute for these flexible loops.
 6. Use [powered-wheel-left.stl](powered-wheel-left.stl) and [powered-wheel-right.stl](powered-wheel-right.stl) only after checking the assumed horn pocket against the supplied horns. Retaining tongues have axial relief and rounded lead-ins, but insertion force, fatigue and torque retention are untested. Keep the supplied horn screw accessible through the wheel center; do not force or replace the servo spline with printed teeth.
@@ -98,6 +104,8 @@ To compare against a saved previous complete assembly, run Blender with `--pytho
 /Applications/Blender.app/Contents/MacOS/Blender --background --python-exit-code 1 --python cad/complete/build.py
 /Applications/Blender.app/Contents/MacOS/Blender --background --python-exit-code 1 --python cad/complete/power_update.py
 ```
+
+To remove the external capacitor from an older saved assembly, run `remove_bulk.py` first, then `power_update.py`. The base builder already omits it.
 
 `power_update.py` can also run by itself against the existing saved assembly; it preserves mechanical meshes and modifies the power references. Back up local work before any full `build.py` rebuild. Add `-- --skip-renders` to either command to skip PNGs. For the full builder, this regenerates geometry, STL checks and the Blender file without PNGs. The builder reads the saved revision 0.4 model and does not overwrite it. To use a separate known base without importing local chassis edits, append `--base-model /absolute/path/to/base.blend` after `--`; `validation.json` records its SHA-256. Revision 0.6.0 used the committed rolling base and preserved the separately modified local rolling model. `parameters.json` supplies the new component envelopes and placement; detailed mating features and routing are also design constants in `build.py`. Changing a component requires updating its mount and revalidating, not only changing one dimension.
 
